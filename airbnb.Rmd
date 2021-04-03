@@ -1,6 +1,6 @@
 ---
-title: "AirBNB"
-author: "Tim Harrold"
+title: "AirBNB Data Analysis"
+author: "Tim Harrold, Madison Brown, Yifei Hao"
 date: "3/10/2021"
 output: html_document
 ---
@@ -13,16 +13,26 @@ library(ggplot2)
 
 ```
 
-## R Markdown
+## Setting up the project
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+First, get our data from:
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+http://insideairbnb.com/get-the-data.html
 
-```{r cars}
 
-listings <- read.csv('listings_1.csv');
-reviews <- read.csv('reviews_1.csv');
+To create these two files, right click the files listings.csv.gz and reviews.csv.gz separately, and click "extract here" or "extract to -> listings.csv", just like we extract the .zip files in class
+
+Before committing and pushing, go to github desktop after you have the data files. Where it lists each file with a checkbox, right click the data files "listings.csv,reviews.csv,listings.csv.gz" and click:     
+"ignore all .csv files(add to .gitignore)", then     
+"ignore all .gz files(add to .gitignore)". 
+
+If the data files are not removed from the list, right click them again and click "Ignore File(add to .gitignore). This will make it so you don't submit large data to the cloud. Github will not accept these large files(even the compressed ones) because of the size of our data.
+
+```{r setup}
+
+
+listings <- read.csv('listings.csv');
+reviews <- read.csv('reviews.csv');
 
 tibble(listings)
 tibble(reviews)
@@ -31,12 +41,12 @@ tibble(reviews)
 
 ```
 
-## Including Plots
+## Make some graphs!
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r plots, echo=FALSE}
+
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
