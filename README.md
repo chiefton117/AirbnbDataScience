@@ -1,0 +1,9 @@
+#Cross analysis of Airbnb data for New York and London
+
+	In this research project, we will be comparing Airbnb data from New York and London in order to ask the question: What city provides the best Airbnb experience? We will be exploring data on Airbnb listings and reviews. Binding the reviews of each location to their prices may give us more insight into how good of an experience you can afford with a bracketed budget, as well as what places you may be able to stay at. We may also filter keywords from the reviews and listings to give a qualitative analysis of peoples stays (i.e. How do people describe a better or worse stay). 
+  
+  
+Our first hypothesis will attempt to answer what makes a good Airbnb experience. What qualitative and quantitative characteristics correlate with better reported experiences? We hypothesize that the cost, size of location, amenities available, and neighborhood will have the strongest correlation with the positivity of the Airbnb experience. We are going to fit a linear model for this. And make several scatter plots to explain the review scores. We also think that positive reviews of London Airbnbs will include more words describing it as quaint, cozy, etc, whereas reviews of New York will include more words describing it as modern, chique, etc. 
+
+
+We hypothesize that New York will have more expensive stays while London will have higher quality stays. Manhattan is known to have a rapidly increasing cost of living, which would make individual airbnb stays more expensive. On the other hand, London is a much older city that’s less densely populated and has larger properties with more amenities than New York, so you can expect a better stay. We will test this hypothesis with linear regressions, by comparing the quality of people’s stays in each city with the cost, size of location, and amenities available. 
