@@ -1,6 +1,6 @@
 ---
 title: "AirBNB Data Analysis"
-author: "Tim Harrold, Madison Brown, Yifei Hao"
+author: "Tim Harrold, Madison brown, Yifei Hao"
 date: "3/10/2021"
 output: html_document
 ---
