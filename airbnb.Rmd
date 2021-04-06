@@ -10,6 +10,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(ggplot2)
+library(dplyr)
+
+# The map theme taken from the book
+theme_map <- function(base_size=9, base_family="") {
+    require(grid)
+    theme_bw(base_size=base_size, base_family=base_family) %+replace%
+        theme(axis.line=element_blank(),
+              axis.text=element_blank(),
+              axis.ticks=element_blank(),
+              axis.title=element_blank(),
+              panel.background=element_blank(),
+              panel.border=element_blank(),
+              panel.grid=element_blank(),
+              panel.spacing=unit(0, "lines"),
+              plot.background=element_blank(),
+              legend.justification = c(0,0),
+              legend.position = c(0,0)
+              )
+}
 
 ```
 
@@ -34,19 +53,66 @@ If the data files are not removed from the list, right click them again and clic
 listings <- read.csv('listings.csv');
 reviews <- read.csv('reviews.csv');
 
-tibble(listings)
-tibble(reviews)
-
-
 
 ```
 
 ## Make some graphs!
 
+Some relevant variables-
+
+number_of_reviews_ltm
+number_of_reviews
+
+review_scores_rating
+
 
 ```{r plots, echo=FALSE}
+
+
+tibble(listings)
+listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
+
+
+tibble(reviews)
+
+ggplot(data = listings, mapping = aes(x=neighbourhood_group_cleansed)) +
+  geom_boxplot()
+
+ggplot(data = listings, mapping = aes(x=neighbourhood_group_cleansed, fill=neighbourhood_group_cleansed)) +
+  geom_density()
+
+
+ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=number_of_reviews, y=priceNum, fill=neighbourhood_group_cleansed)) +
+  geom_col()
+
+ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
+  geom_bar()
+
+ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
+  geom_point() +
+  facet_wrap(~ neighbourhood_group_cleansed)
+
+
+#ggplot(data = listings, mapping = aes(x=number_of_reviews, y=priceNum, color=neighbourhood_group_cleansed)) +
+#  geom_point()
+
+
+
+
+```
+```{r moregraphs}
 
 
 
 ```
 
+```{r maps,}
+
+ggplot(data = listings, mapping=aes(x=longitude,y=latitude, fill=price)) +
+  geom_polygon() +
+  scale_fill_continuous(low='white', high='purple') +
+  coord_equal() +
+  theme_map()
+
+
+```
