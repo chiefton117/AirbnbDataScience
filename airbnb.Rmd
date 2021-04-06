@@ -50,7 +50,7 @@ If the data files are not removed from the list, right click them again and clic
 ```{r setup}
 
 
-listings <- read.csv('listings.csv');
+listings <- read.csv('listings_NYC.csv');
 reviews <- read.csv('reviews.csv');
 
 
