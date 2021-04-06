@@ -66,24 +66,22 @@ number_of_reviews
 review_scores_rating
 
 
-```{r plots, echo=FALSE}
+```{r listings, echo=FALSE}
 
 
 tibble(listings)
 listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
-
-tibble(reviews)
-
-ggplot(data = listings, mapping = aes(x=neighbourhood_group_cleansed)) +
+ggplot(data = listings, mapping = aes(x=neighbourhood_group_cleansed, color=neighbourhood_group_cleansed)) +
   geom_boxplot()
 
 ggplot(data = listings, mapping = aes(x=neighbourhood_group_cleansed, fill=neighbourhood_group_cleansed)) +
   geom_density()
 
 
-ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=number_of_reviews, y=priceNum, fill=neighbourhood_group_cleansed)) +
-  geom_col()
+ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
+  geom_density() +
+  facet_wrap(~ neighbourhood_group_cleansed)
 
 ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
   geom_bar()
@@ -100,9 +98,9 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
 
 
 ```
-```{r moregraphs}
+```{r reviews}
 
-
+tibble(reviews)
 
 ```
 
