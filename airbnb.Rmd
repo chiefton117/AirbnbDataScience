@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
+library(ggwordcloud)
 
 # The map theme taken from the book
 theme_map <- function(base_size=9, base_family="") {
@@ -106,61 +107,67 @@ stopWords <- c("a", "about", "above", "above", "across", "after", "afterwards", 
     "an", "and", "another", "any","anyhow","anyone","anything","anyway", "anywhere", "are", "aren't", "around", "as",  
     "at", "back", "bc", "be","became", "because","become","becomes", "becoming", "been", "before", "beforehand", "behind", 
     "being", "below", "beside", "besides", "between", "beyond", "bill", "both", "bottom","but", "by", "call", 
-    "can", "cannot", "cant", "co", "con", "could", "couldnt", "de", "describe", "detail", "do", "done", "don't", 
+    "can", "cannot", "cant", "co", "con", "could", "couldnt", "de", "describe", "detail", "did", "do", "done", "don't", 
     "down", "due", "during", "each", "eg", "eight", "either", "eleven","else", "elsewhere", "empty", "enough", "episode", 
     "etc", "even", "ever", "every", "everyone", "everything", "everywhere", "except", "few", "fifteen", "fify", 
     "fill", "find", "fire", "first", "five", "for", "former", "formerly", "forty", "found", "four", "from", 
     "front", "full", "further", "get", "give", "go", "going", "had", "has", "hasnt", "have", "he", "hello", "hence", "her", 
     "here", "hereafter", "hereby", "herein", "hereupon", "hers", "herself", "him", "himself", "his", "how",
     "however", "hundred", "i", "ie", "if", "i'll", "in", "inc", "indeed", "interest", "into", "is", "it", "its", "it’s", "itself", "i've", "just",
-    "keep", "last", "latter", "latterly", "least", "less", "let's", "like", "ltd", "made", "many", "may", "me", "meanwhile", 
+    "keep", "last", "latter", "latterly", "least", "leave", "less", "let's", "like", "ltd", "made", "many", "may", "me", "met", "meanwhile", 
     "might", "mill", "mine", "more", "moreover", "most", "mostly", "move", "much", "must", "my", "myself", 
     "name", "namely", "neither", "never", "nevertheless", "next", "nine", "no", "nobody", "none", "noone", 
     "nor", "not", "nothing", "now", "nowhere", "of", "off", "often", "on", "once", "one", "only", "onto", "or", 
     "other", "others", "otherwise", "our", "ours", "ourselves", "out", "over", "own","part", "per", "perhaps", 
     "please", "put", "rather", "re", "same", "see", "seem", "seemed", "seeming", "seems", "serious", "several", 
-    "she", "should", "show", "side", "since", "sincere", "six", "sixty", "so", "some", "somehow", "someone", 
-    "something", "sometime", "sometimes", "somewhere", "still", "such", "take", "ten", "than", 
-    "that", "the", "their", "them", "themselves", "the", "then", "thence", "there", "thereafter", "thereby", "therefore", 
+    "she", "should", "show", "side", "since", "six", "sixty", "so", "some", "somehow", "someone", 
+    "something", "sometime", "sometimes", "somewhere", "still", "such", "take", "takes", "ten", "than", 
+    "that", "thats", "the", "their", "them", "themselves", "the", "then", "thence", "there", "thereafter", "thereby", "therefore", 
     "therein", "thereupon", "these", "they", "thick", "thin", "third", "this", "those", "though", "three", 
-    "through", "throughout", "thru", "thus", "to", "together", "too", "top", "toward", "towards", "transcript", "twelve", 
+    "through", "throughout", "thru", "thus", "to", "together", "too", "told", "top", "toward", "towards", "twelve", 
     "twenty", "two", "un", "under", "until", "up", "upon", "us", "very", "via", "was", "we", "well", "were", 
     "what", "whatever", "when", "whence", "whenever", "where", "whereafter", "whereas", "whereby", "wherein",
     "whereupon", "wherever", "whether", "which", "while", "whither", "who", "whoever", "whole", "whom", "whose", 
     "why", "will", "with", "within", "without", "would", "year", "years", "yet", "you", "your", "you're", "yours", "yourself", "yourselves", "ve", "")
 
-stopWords
 
 ```
-
-```{r reviews}
 
 reviews$comments[3]<-gsub("[\r\n\\.\\,]","",reviews$comments[3])
 
 reviews$comments[3] <- tolower(gsub('[[:punct:] ]+',' ',reviews$comments[3]))
 
-#reviews$comments[3]
-
-#a <- as.data.frame(str_split(reviews$comments[3], " "))
 a <- str_split(reviews$comments[3], " ", simplify=TRUE)
 
-# %>% a - intersection(a, stopWords)
-
-#a.freq<-table(unlist(a))
-#cbind(names(a.freq),as.integer(a.freq))
 b <- setdiff(a, stopWords)
 b <- setdiff(b, letters)
-b
 
-#b <- a[!(a %in% stopWords)]
-#b = subset(a, !(a %in% stopWords))
-#b <- a %>% filter(a %in% stopWords)
+c <- as.data.frame(b)
+c
 
 
-#b <- subset(a, a %in% stopWords)
-#b
+```{r reviews}
+
+sample <- tolower(head(reviews$comments, 10))
+sample <- gsub("[\\\r\n\\.\\,[:digit:]+]","",sample, perl=TRUE, fixed = FALSE)
+sample <- gsub('[[:punct:] ]+',' ',sample)
+
+words <- setdiff(str_split(sample, " ", simplify=TRUE), stopWords)
+words <- data.frame(setdiff(words, letters))
+colnames(words) <- c("word")
+#remove all 3 letter or less words
+words[nchar(words$word) > 3,]
+
+tibble(words)
+
+ggplot(data=words, mapping=aes(label=word)) +
+  geom_text_wordcloud() +
+  theme_bw()
 
 
+# frequency table for words
+#a.freq<-table(unlist(a))
+#cbind(names(a.freq),as.integer(a.freq))
 
 
 ```
