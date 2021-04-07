@@ -130,20 +130,19 @@ stopWords <- c("a", "about", "above", "above", "across", "after", "afterwards", 
     "whereupon", "wherever", "whether", "which", "while", "whither", "who", "whoever", "whole", "whom", "whose", 
     "why", "will", "with", "within", "without", "would", "year", "years", "yet", "you", "your", "you're", "yours", "yourself", "yourselves", "ve", "")
 
+tibble(reviews)
+
+reviews$id <- reviews$listing_id
+
+top_10 <- listings %>%
+  select(id, priceNum, neighbourhood_group_cleansed, review_scores_rating) %>%
+  group_by(id, neighbourhood_group_cleansed) %>%
+  filter(review_scores_rating == max(review_scores_rating)) %>%
+  arrange(desc(review_scores_rating))
+
+head(top_10, n=10)
 
 ```
-
-reviews$comments[3]<-gsub("[\r\n\\.\\,]","",reviews$comments[3])
-
-reviews$comments[3] <- tolower(gsub('[[:punct:] ]+',' ',reviews$comments[3]))
-
-a <- str_split(reviews$comments[3], " ", simplify=TRUE)
-
-b <- setdiff(a, stopWords)
-b <- setdiff(b, letters)
-
-c <- as.data.frame(b)
-c
 
 
 ```{r reviews}
@@ -157,8 +156,6 @@ words <- data.frame(setdiff(words, letters))
 colnames(words) <- c("word")
 #remove all 3 letter or less words
 words[nchar(words$word) > 3,]
-
-tibble(words)
 
 ggplot(data=words, mapping=aes(label=word)) +
   geom_text_wordcloud() +
