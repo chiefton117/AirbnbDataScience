@@ -52,7 +52,7 @@ If the data files are not removed from the list, right click them again and clic
 
 
 listings <- read.csv('listings_NYC.csv');
-reviews <- read.csv('reviews.csv');
+reviews <- read.csv('reviews_NYC.csv');
 
 tibble(listings)
 tibble(reviews)
@@ -112,17 +112,17 @@ stopWords <- c("a", "about", "above", "above", "across", "after", "afterwards", 
     "an", "and", "another", "any","anyhow","anyone","anything","anyway", "anywhere", "are", "aren't", "around", "as",  
     "at", "back", "bc", "be","became", "because","become","becomes", "becoming", "been", "before", "beforehand", "behind", 
     "being", "below", "beside", "besides", "between", "beyond", "bill", "both", "bottom","but", "by", "call", 
-    "can", "cannot", "cant", "co", "con", "could", "couldnt", "de", "definitely", "definetely", "defin", "describe", "detail", "did", "do", "done", "don't", 
+    "can", "cannot", "cant", "chaqueta", "chayda", "co", "con", "could", "couldnt", "de", "definitely", "definetely", "defin", "describe", "detail", "did", "do", "doesn", "doesn't", "done", "don't", 
     "down", "due", "during", "each", "eg", "eight", "either", "eleven","else", "elsewhere", "empty", "enough", "episode", 
     "etc", "even", "ever", "every", "everyone", "everything", "everywhere", "except", "few", "fifteen", "fify", 
     "fill", "find", "fire", "first", "five", "for", "former", "formerly", "forty", "found", "four", "from", 
     "front", "full", "further", "get", "give", "go", "going", "had", "has", "hasnt", "have", "he", "hello", "hence", "her", 
     "here", "hereafter", "hereby", "herein", "hereupon", "hers", "herself", "him", "himself", "his", "how",
     "however", "hundred", "i", "ie", "if", "i'll", "in", "inc", "indeed", "interest", "into", "is", "it", "its", "it’s", "itself", "i've", "just",
-    "keep", "last", "latter", "latterly", "least", "leave", "less", "let's", "like", "ltd", "made", "many", "may", "me", "met", "meanwhile", 
+    "keep", "last", "latter", "latterly", "least", "leave", "less", "let's", "like", "ltd", "made", "many", "may", "me", "met", "meanwhile", "message",
     "might", "mill", "mine", "more", "moreover", "most", "mostly", "move", "much", "must", "my", "myself", 
-    "name", "namely", "neither", "never", "nevertheless", "next", "nine", "no", "nobody", "none", "noone", 
-    "nor", "not", "nothing", "now", "nowhere", "of", "off", "often", "on", "once", "one", "only", "onto", "or", 
+    "name", "namely", "neither", "never", "nevertheless", "next", "nine", "no", "nobody", "none", "noone", "nsure", 
+    "nor", "not", "nothing", "now", "nowhere", "nthe", "of", "off", "often", "on", "once", "one", "only", "onto", "or", 
     "other", "others", "otherwise", "our", "ours", "ourselves", "out", "over", "own","part", "per", "perhaps", 
     "please", "put", "rather", "re", "same", "see", "seem", "seemed", "seeming", "seems", "serious", "several", 
     "she", "should", "show", "side", "since", "six", "sixty", "so", "some", "somehow", "someone", 
@@ -138,17 +138,18 @@ stopWords <- c("a", "about", "above", "above", "across", "after", "afterwards", 
 # replace reviews listing id for join
 reviews$id <- reviews$listing_id
 
-top_10 <- listings %>%
+
+ordered <- listings %>%
   select(id, priceNum, neighbourhood_group_cleansed, review_scores_rating) %>%
   group_by(id, neighbourhood_group_cleansed) %>%
   filter(review_scores_rating == max(review_scores_rating)) %>%
   arrange(desc(review_scores_rating), desc(priceNum))
 
-joined <- left_join(top_10, reviews, by="id")
+joined <- as.data.frame(left_join(ordered, reviews, by="id"))
 
-avg_review <- sample_n(joined, 10, replace=TRUE)
-best_review <- head(joined, n=10)
-worst_review <- tail(joined, n=10)
+avg_review <- sample_n(joined, 20)
+best_review <- head(joined, n=20)
+worst_review <- tail(joined, n=20)
 
 ```
 
@@ -156,33 +157,41 @@ worst_review <- tail(joined, n=10)
 
 ```{r reviews}
 
-sample <- tolower(head(reviews$comments, 10))
-sample <- gsub("[\\\r\n\\.\\,[:digit:]+]","",sample, perl=TRUE, fixed = FALSE)
-sample <- gsub('[[:punct:] ]+',' ',sample)
+# Takes in a data frame and scrubs the review variable with regex - taking out punctuation, numbers and newlines
+filter_regex <- function(data) {
+  
+  # filter data with regex
+  sample <- tolower(gsub("[\\\r\n[:digit:]+]","",data, perl=TRUE, fixed = FALSE))
+  sample <- gsub('[[:punct:] ]+',' ',sample)
+  
+  # remove stop words and all 3 letter or less words
+  words <- data.frame(word = setdiff(str_split(sample, " ", simplify=TRUE), stopWords)) %>% 
+    filter(nchar(word) > 3)
+  
+  # add integer attribute for repeated words
+  freqs <- words %>% count(word) %>% arrange(desc(n))
+  
+}
 
-words <- data.frame(word = setdiff(str_split(sample, " ", simplify=TRUE), stopWords)) %>% 
-  filter(nchar(word) > 2)
+# Create our data frames by filtering reviews
+best <- filter_regex(best_review)
+avg <- filter_regex(avg_review)
+worst <- filter_regex(worst_review)
 
-#colnames(words) <- c("word")
-freqs <- words %>% count(word) %>% arrange(desc(n))
-words
-freqs
+ggplot(data=best, mapping=aes(label=word,size=n)) +
+  geom_text_wordcloud(rm_outside = TRUE) +
+  theme_bw() +
+  labs(title="Top 10 Listings - Word Frequency")
 
-#remove all 3 letter or less words
+ggplot(data=avg, mapping=aes(label=word,size=n)) +
+  geom_text_wordcloud(rm_outside = TRUE) +
+  theme_bw() +
+  labs(title="Average 10 Listings - Word Frequency")
 
-
-words.freq<-table(unlist(words))
-cbind(names(words.freq),as.integer(words.freq))
-
-
-#ggplot(data=words, mapping=aes(label=word,size=frequency)) +
-#  geom_text_wordcloud(rm_outside = TRUE) +
-#  theme_bw()
-
-
-# frequency table for words
-#a.freq<-table(unlist(a))
-#cbind(names(a.freq),as.integer(a.freq))
+ggplot(data=worst, mapping=aes(label=word,size=n)) +
+  geom_text_wordcloud(rm_outside = TRUE) +
+  theme_bw() +
+  labs(title="Worst 10 Listings - Word Frequency")
 
 ```
 
