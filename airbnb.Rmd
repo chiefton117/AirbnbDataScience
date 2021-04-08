@@ -194,18 +194,23 @@ ggplot(data=worst, mapping=aes(label=word,size=n)) +
 ```
 
 
-## Box Plot of ---
+## Box Plot of Price
 ```{r boxplot}
+boxplot <- as.data.frame(sample_n(listings, 1500))
 
-
+ggplot(data = boxplot, 
+       mapping = aes(x = neighbourhood_group_cleansed, y = priceNum, fill = neighbourhood_group_cleansed)) +
+  geom_boxplot()
+  
 
 ```
 
 ## Scatter plot of Ratings by Price
 
 ```{r scatter}
+scatter <- as.data.frame(sample_n(listings, 1000))
 
-ggplot(data = listings, mapping = aes(x = price, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
+ggplot(data = scatter, mapping = aes(x = priceNum, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
   geom_point() +
   theme_bw() 
 
