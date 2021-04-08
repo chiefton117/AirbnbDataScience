@@ -28,6 +28,8 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(ggwordcloud)
+library(grid)
+library(gridExtra)
 
 # The map theme taken from the book
 theme_map <- function(base_size=9, base_family="") {
@@ -77,33 +79,20 @@ reviews <- read.csv('reviews_NYC.csv');
 
 ```{r listings, echo=FALSE}
 
-
 tibble(listings)
 listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
-
-ggplot(data = listings, mapping = aes(x=neighbourhood_group_cleansed, color=neighbourhood_group_cleansed)) +
-  geom_boxplot()
-
-ggplot(data = listings, mapping = aes(x=neighbourhood_group_cleansed, fill=neighbourhood_group_cleansed)) +
-  geom_density()
-
 
 ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
   geom_density() +
   facet_wrap(~ neighbourhood_group_cleansed)
 
-ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
-  geom_bar()
+ggplot(data = listings %>% filter(review_scores_rating > 50), mapping = aes(x=review_scores_rating, fill=neighbourhood_group_cleansed)) +
+  geom_density() +
+  facet_wrap(~ neighbourhood_group_cleansed)
 
 ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
   geom_point() +
   facet_wrap(~ neighbourhood_group_cleansed)
-
-
-#ggplot(data = listings, mapping = aes(x=number_of_reviews, y=priceNum, color=neighbourhood_group_cleansed)) +
-#  geom_point()
-
-
 
 
 ```
@@ -111,12 +100,13 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
 
 ``` {r stopWords}
 
-stopWords <- c("a", "about", "above", "above", "across", "after", "afterwards", "again", "against", "all", "almost", 
-    "alone", "along", "already", "also","although","always","am","among", "amongst", "amoungst", "amount",  
+# First, we'll define our array of stop words
+stopWords <- c("airbnb", "a", "about", "above", "above", "across", "after", "afterwards", "again", "against", "all", "almost", 
+    "alone", "along", "alojen", "already", "also","although","always","am", "ammar","among", "amongst", "amoungst", "amount",  
     "an", "and", "another", "any","anyhow","anyone","anything","anyway", "anywhere", "are", "aren't", "around", "as",  
-    "at", "back", "bc", "be","became", "because","become","becomes", "becoming", "been", "before", "beforehand", "behind", 
+    "at", "back", "bc", "be","became", "because", "becky", "become","becomes", "becoming", "been", "before", "beforehand", "behind", 
     "being", "below", "beside", "besides", "between", "beyond", "bill", "both", "bottom","but", "by", "call", 
-    "can", "cannot", "cant", "chaqueta", "chayda", "co", "con", "could", "couldnt", "de", "definitely", "definetely", "defin", "describe", "detail", "did", "do", "doesn", "doesn't", "done", "don't", 
+    "can", "cannot", "cant", "charline", "casper","chaqueta", "chayda", "christina", "co", "con", "could", "couldnt", "de", "definitely", "definetely", "defin", "describe", "detail", "did", "do", "doesn", "doesn't", "done", "don't", 
     "down", "due", "during", "each", "eg", "eight", "either", "eleven","else", "elsewhere", "empty", "enough", "episode", 
     "etc", "even", "ever", "every", "everyone", "everything", "everywhere", "except", "few", "fifteen", "fify", 
     "fill", "find", "fire", "first", "five", "for", "former", "formerly", "forty", "found", "four", "from", 
@@ -127,7 +117,7 @@ stopWords <- c("a", "about", "above", "above", "across", "after", "afterwards", 
     "might", "mill", "mine", "more", "moreover", "most", "mostly", "move", "much", "must", "my", "myself", 
     "name", "namely", "neither", "never", "nevertheless", "next", "nine", "no", "nobody", "none", "noone", "nsure", 
     "nor", "not", "nothing", "now", "nowhere", "nthe", "of", "off", "often", "on", "once", "one", "only", "onto", "or", 
-    "other", "others", "otherwise", "our", "ours", "ourselves", "out", "over", "own","part", "per", "perhaps", 
+    "other", "others", "otherwise", "our", "ours", "ourselves", "out", "over", "own", "para","part", "per", "perhaps", 
     "please", "put", "rather", "re", "same", "see", "seem", "seemed", "seeming", "seems", "serious", "several", 
     "she", "should", "show", "side", "since", "six", "sixty", "so", "some", "somehow", "someone", 
     "something", "sometime", "sometimes", "somewhere", "still", "such", "take", "takes", "ten", "than", 
@@ -142,7 +132,7 @@ stopWords <- c("a", "about", "above", "above", "across", "after", "afterwards", 
 # replace reviews listing id for join
 reviews$id <- reviews$listing_id
 
-
+# create a new joined frame with less data, for easier analysis
 ordered <- listings %>%
   select(id, priceNum, neighbourhood_group_cleansed, review_scores_rating) %>%
   group_by(id, neighbourhood_group_cleansed) %>%
@@ -154,12 +144,6 @@ joined <- as.data.frame(left_join(ordered, reviews, by="id"))
 avg_review <- sample_n(joined, 20)
 best_review <- head(joined, n=20)
 worst_review <- tail(joined, n=20)
-
-```
-
-## Reviews 
-
-```{r reviews}
 
 # Takes in a data frame and scrubs the review variable with regex - taking out punctuation, numbers and newlines
 filter_regex <- function(data) {
@@ -177,25 +161,34 @@ filter_regex <- function(data) {
   
 }
 
+```
+
+## Reviews 
+
+```{r reviews, message=FALSE, warning=FALSE}
+
 # Create our data frames by filtering reviews
 best <- filter_regex(best_review)
 avg <- filter_regex(avg_review)
 worst <- filter_regex(worst_review)
 
-ggplot(data=best, mapping=aes(label=word,size=n)) +
+# Create some word clouds
+w1 <- ggplot(data=best, mapping=aes(label=word,size=n)) +
   geom_text_wordcloud(rm_outside = TRUE) +
   theme_bw() +
-  labs(title="Top 10 Listings - Word Frequency")
+  labs(title="NYC AirBnb Unique Word Frequency", subtitle="Top 20 Reviews")
 
-ggplot(data=avg, mapping=aes(label=word,size=n)) +
+w2 <- ggplot(data=avg, mapping=aes(label=word,size=n)) +
   geom_text_wordcloud(rm_outside = TRUE) +
   theme_bw() +
-  labs(title="Average 10 Listings - Word Frequency")
+  labs(title="NYC AirBnb Unique Word Frequency", subtitle="20 Randomly Sampled Reviews")
 
-ggplot(data=worst, mapping=aes(label=word,size=n)) +
+w3 <- ggplot(data=worst, mapping=aes(label=word,size=n)) +
   geom_text_wordcloud(rm_outside = TRUE) +
   theme_bw() +
-  labs(title="Worst 10 Listings - Word Frequency")
+  labs(title="NYC AirBnb Unique Word Frequency", subtitle="Worst 20 Reviews")
+
+grid.arrange(w1, w2, w3)
 
 ```
 
@@ -214,9 +207,11 @@ ggplot(data = boxplot %>% filter(priceNum < 2000),
 ## Scatter plot of Ratings by Price
 
 ```{r scatter}
+
+set.seed(129)
 scatter <- as.data.frame(sample_n(listings, 1000))
 
-ggplot(data = scatter, mapping = aes(x = priceNum, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
+ggplot(data = scatter %>% filter(priceNum < 3000 & number_of_reviews < 500), mapping = aes(x = priceNum, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
   geom_point() +
   theme_bw() 
 
