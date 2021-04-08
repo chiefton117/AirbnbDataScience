@@ -54,17 +54,21 @@ If the data files are not removed from the list, right click them again and clic
 listings <- read.csv('listings_NYC.csv');
 reviews <- read.csv('reviews.csv');
 
-
+tibble(listings)
+tibble(reviews)
 ```
 
 ## Make some graphs!
 
-Some relevant variables-
+Relationships/graphs: 
 
-number_of_reviews_ltm
-number_of_reviews
+- Price vs. Rating
 
-review_scores_rating
+- stop words
+
+- Map of NYC
+
+- Box plot
 
 
 ```{r listings, echo=FALSE}
@@ -99,6 +103,7 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
 
 
 ```
+## Stop Words 
 
 ``` {r stopWords}
 
@@ -145,9 +150,9 @@ avg_review <- sample_n(joined, 10, replace=TRUE)
 best_review <- head(joined, n=10)
 worst_review <- tail(joined, n=10)
 
-
 ```
 
+## Reviews 
 
 ```{r reviews}
 
@@ -179,11 +184,29 @@ cbind(names(words.freq),as.integer(words.freq))
 #a.freq<-table(unlist(a))
 #cbind(names(a.freq),as.integer(a.freq))
 
-
 ```
 
 
-```{r maps,}
+## Box Plot of ---
+```{r boxplot}
+
+
+
+```
+
+## Scatter plot of Ratings by Price
+
+```{r scatter}
+
+ggplot(data = listings, mapping = aes(x = price, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
+  geom_point() +
+  theme_bw() 
+
+```
+
+## Map of NYC (WHAT IS OUR VARIABLE?)
+Show price and/or reviews in each neighborhood
+```{r maps, force = TRUE}
 
 #DO NOT RUN THIS CODE
 #IT WILL MAKE YOUR COMPUTER CRASH
@@ -196,9 +219,29 @@ cbind(names(words.freq),as.integer(words.freq))
 #  theme_map()
 
 
-```
+devtools::install_github("zachcp/nycmaps") 
+library(maps)
+map(database="nyc")
 
-```{maps}
+library(devtools)
+library(maps)
+library(ggmap)
+library(ggplot2)
+library(tidyr)
+
+nyc <- map_data("nyc")
+gg  <- ggplot()
+gg  <- gg + 
+         geom_map(
+           data=nyc, 
+           map=nyc,
+           aes(x=long, y=lat, map_id=region))
+
+plot_nyc(data = listings,
+           values = 'price',
+           regions = 'neighbourhood_group_cleansed',
+           color = 'black')
+
 
 
 
