@@ -5,6 +5,16 @@ date: "3/10/2021"
 output: html_document
 ---
 
+Relationships/graphs: 
+
+- Price vs. Rating
+
+- stop words
+
+- Map of NYC
+
+- Box plot
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -54,21 +64,9 @@ If the data files are not removed from the list, right click them again and clic
 listings <- read.csv('listings_NYC.csv');
 reviews <- read.csv('reviews_NYC.csv');
 
-tibble(listings)
-tibble(reviews)
 ```
 
-## Make some graphs!
-
-Relationships/graphs: 
-
-- Price vs. Rating
-
-- stop words
-
-- Map of NYC
-
-- Box plot
+## Make some graphs! 
 
 
 ```{r listings, echo=FALSE}
