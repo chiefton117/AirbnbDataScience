@@ -250,7 +250,7 @@ ggplot(data = sData, mapping = aes(x = priceNum, review_scores_rating)) +
 clrs <- colorBin(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, bins = 11, na.color = NA)
 #clrs <- colorQuantile(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, na.color = NA)
 
-
+# plot price on map, not sure what the actual markers signify?
 leaflet(sData) %>%
   addTiles() %>%
   addCircleMarkers(data = sData,
@@ -269,7 +269,9 @@ leaflet(sData) %>%
 #clrsrev <- colorBin(palette = "RdYlBu", domain = sData$review_scores_rating, reverse = TRUE, na.color = NA)
 clrsrev <- colorBin(palette = "RdYlBu", domain = sData$review_scores_rating, reverse = TRUE, na.color = NA)
 
-leaflet(sData) %>%
+# Where are most reviews found, and how much are they?
+# Markers are stored on review scores < 60
+leaflet(sData %>% filter(review_scores_rating < 60)) %>%
   addTiles() %>%
   addCircleMarkers(data = sData %>% filter(!is.na(review_scores_rating)),
            lng = ~longitude,
@@ -282,6 +284,9 @@ leaflet(sData) %>%
   addMarkers( clusterOptions = markerClusterOptions() ) %>%
   setView(-74.00, 40.71, zoom = 12) %>%
   addProviderTiles("CartoDB.Positron")
+
+
+
 
 
 
