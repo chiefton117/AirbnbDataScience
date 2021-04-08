@@ -18,9 +18,15 @@ Relationships/graphs:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+
+library(devtools)
+library(maps)
+library(leaflet)
+library(ggmap)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 library(ggwordcloud)
 
 # The map theme taken from the book
@@ -198,7 +204,7 @@ ggplot(data=worst, mapping=aes(label=word,size=n)) +
 ```{r boxplot}
 boxplot <- as.data.frame(sample_n(listings, 1500))
 
-ggplot(data = boxplot, 
+ggplot(data = boxplot %>% filter(priceNum < 2000), 
        mapping = aes(x = neighbourhood_group_cleansed, y = priceNum, fill = neighbourhood_group_cleansed)) +
   geom_boxplot()
   
@@ -220,40 +226,32 @@ ggplot(data = scatter, mapping = aes(x = priceNum, y = number_of_reviews, color 
 Show price and/or reviews in each neighborhood
 ```{r maps, force = TRUE}
 
-#DO NOT RUN THIS CODE
-#IT WILL MAKE YOUR COMPUTER CRASH
-#possibly because data size is too big?
-#lat0 and lat1 are probably set incorrectly too, as our area is NYC, not America
-#ggplot(data = listings, mapping=aes(x=longitude,y=latitude, fill=priceNum)) +
-#  geom_polygon() +
-#  scale_fill_continuous(low='white', high='purple') +
-#  coord_map(projection="albers", lat0=39,lat1=45) +
-#  theme_map()
+stdev <- sd(sData$priceNum)
+mean <- mean(sData$priceNum)
+
+sData <- sample_n(listings, 500) %>% filter(priceNum > mean - stdev & priceNum < mean + stdev)
+
+ggplot(data = sData, mapping = aes(x = priceNum)) +
+  geom_histogram()
 
 
-devtools::install_github("zachcp/nycmaps") 
-library(maps)
-map(database="nyc")
 
-library(devtools)
-library(maps)
-library(ggmap)
-library(ggplot2)
-library(tidyr)
+clrs <- colorBin(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, bins = 11)
 
-nyc <- map_data("nyc")
-gg  <- ggplot()
-gg  <- gg + 
-         geom_map(
-           data=nyc, 
-           map=nyc,
-           aes(x=long, y=lat, map_id=region))
-
-plot_nyc(data = listings,
-           values = 'price',
-           regions = 'neighbourhood_group_cleansed',
-           color = 'black')
-
+leaflet(sData) %>%
+  addTiles() %>%
+  addCircleMarkers(data = sData,
+           lng = ~longitude,
+           lat = ~latitude,
+           color = ~clrs(priceNum),
+           stroke = FALSE, fillOpacity = 0.4, radius = 5) %>%
+  addLegend("bottomright", pal = clrs, values = ~priceNum,
+    title = "Price",
+    labFormat = labelFormat(prefix = "$"),
+    opacity = 1) %>%
+  addMarkers( clusterOptions = markerClusterOptions() ) %>%
+  setView(-74.00, 40.71, zoom = 12) %>%
+  addProviderTiles("CartoDB.Positron")
 
 
 
