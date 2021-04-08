@@ -161,16 +161,17 @@ filter_regex <- function(data) {
   
 }
 
+# Create our data frames by filtering reviews
+best <- filter_regex(best_review)
+avg <- filter_regex(avg_review)
+worst <- filter_regex(worst_review)
+
+
 ```
 
 ## Reviews 
 
 ```{r reviews, message=FALSE, warning=FALSE}
-
-# Create our data frames by filtering reviews
-best <- filter_regex(best_review)
-avg <- filter_regex(avg_review)
-worst <- filter_regex(worst_review)
 
 # Create some word clouds
 w1 <- ggplot(data=best, mapping=aes(label=word,size=n)) +
@@ -211,7 +212,7 @@ ggplot(data = boxplot %>% filter(priceNum < 2000),
 set.seed(129)
 scatter <- as.data.frame(sample_n(listings, 1000))
 
-ggplot(data = scatter %>% filter(priceNum < 3000 & number_of_reviews < 500), mapping = aes(x = priceNum, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
+ggplot(data = scatter %>% filter(number_of_reviews < 500), mapping = aes(x = review_scores_rating, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
   geom_point() +
   theme_bw() 
 
@@ -242,7 +243,7 @@ ggplot(data = sData, mapping = aes(x = priceNum)) +
 ggplot(data = sData, mapping = aes(x = priceNum, review_scores_rating)) +
   geom_point()
 
-clrs <- colorBin(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, bins = 11, na.color = NA)
+clrs <- colorBin(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, bins = 15, na.color = NA)
 #clrs <- colorQuantile(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, na.color = NA)
 
 # plot price on map, not sure what the actual markers signify?
