@@ -224,19 +224,32 @@ ggplot(data = scatter, mapping = aes(x = priceNum, y = number_of_reviews, color 
 
 ## Map of NYC (WHAT IS OUR VARIABLE?)
 Show price and/or reviews in each neighborhood
-```{r maps, force = TRUE}
+```{r maps, force = TRUE, message=FALSE, warning=FALSE}
 
-stdev <- sd(sData$priceNum)
-mean <- mean(sData$priceNum)
+subset <- sample_n(listings, 2000)
 
-sData <- sample_n(listings, 500) %>% filter(priceNum > mean - stdev & priceNum < mean + stdev)
+stdev <- sd(subset$priceNum)
+mean <- mean(subset$priceNum)
 
+# This is within one standard deviation of the mean
+sData <- subset %>% filter(priceNum > (mean - stdev) & priceNum < (mean + stdev))
+# This is within two standard deviations of the mean
+sd2Data <- subset %>% filter(priceNum > mean - (2*stdev) & priceNum < mean + (2*stdev))
+
+
+#sData <- sample_n(listings, 500) %>% filter(priceNum > mean - stdev & priceNum < mean + stdev)
+
+# Check how full our dataset is, between stdevs
 ggplot(data = sData, mapping = aes(x = priceNum)) +
   geom_histogram()
 
+# Plot price against rating to confirm correlation
+ggplot(data = sData, mapping = aes(x = priceNum, review_scores_rating)) +
+  geom_point()
 
+clrs <- colorBin(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, bins = 11, na.color = NA)
+#clrs <- colorQuantile(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, na.color = NA)
 
-clrs <- colorBin(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, bins = 11)
 
 leaflet(sData) %>%
   addTiles() %>%
@@ -244,10 +257,27 @@ leaflet(sData) %>%
            lng = ~longitude,
            lat = ~latitude,
            color = ~clrs(priceNum),
-           stroke = FALSE, fillOpacity = 0.4, radius = 5) %>%
+           stroke = FALSE, fillOpacity = 0.4, radius = 4) %>%
   addLegend("bottomright", pal = clrs, values = ~priceNum,
     title = "Price",
     labFormat = labelFormat(prefix = "$"),
+    opacity = 1) %>%
+  addMarkers( clusterOptions = markerClusterOptions() ) %>%
+  setView(-74.00, 40.71, zoom = 12) %>%
+  addProviderTiles("CartoDB.Positron")
+
+#clrsrev <- colorBin(palette = "RdYlBu", domain = sData$review_scores_rating, reverse = TRUE, na.color = NA)
+clrsrev <- colorBin(palette = "RdYlBu", domain = sData$review_scores_rating, reverse = TRUE, na.color = NA)
+
+leaflet(sData) %>%
+  addTiles() %>%
+  addCircleMarkers(data = sData %>% filter(!is.na(review_scores_rating)),
+           lng = ~longitude,
+           lat = ~latitude,
+           color = ~clrsrev(review_scores_rating),
+           stroke = FALSE, fillOpacity = 0.4, radius = 4) %>%
+  addLegend("bottomright", pal = clrsrev, values = ~review_scores_rating,
+    title = "Review Score",
     opacity = 1) %>%
   addMarkers( clusterOptions = markerClusterOptions() ) %>%
   setView(-74.00, 40.71, zoom = 12) %>%
