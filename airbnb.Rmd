@@ -5,7 +5,19 @@ date: "3/10/2021"
 output: html_document
 ---
 
-In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City and what makes the best Airbnb experience. We ask the question, which characteristics (variables) are correlated with a better reported experience. This analysis will include graphs to show the relationships between price and neighborhood, rating and neighborhood, rating and number of reviews, and rating and review stop words. We will be using tables, density plots, scatter plots, box plots, and maps to analyze the correlations between these variables. To give a qualitative analysis of peoples stays, we will be using word cloud to filter keywords from the reviews. A map of the city will provide spacial information on where the most vs least expensive Airbnbs are located in the city. We hypothesize that the Bronx and Brooklyn will have the higher densities of lower priced Airbnbs than Staten Island and Manhattan, and that there will be a positive correlation between price and review score. We hypothesize that the map will show the highest concentration of higher priced Airbnbs in Manhattan. In the cloud word, we hypothesize that PULL FROM TIMS DESCRIPTION. 
+Our data was sourced from airbnb's website: http://insideairbnb.com/get-the-data.html    
+
+In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City, and what makes the best Airbnb experience. We ask the question, which characteristics (variables) are correlated with a better reported experience.    
+
+This analysis will include graphs to show the relationships between price and neighborhood, rating and neighborhood, rating and number of reviews, and rating and review stop words. We will be using tables, density plots, scatter plots, box plots, and maps to analyze the correlations between these variables. To give a qualitative analysis of peoples stays, we will be using word cloud to filter keywords from the reviews. A map of the city will provide spacial information on where the most vs least expensive Airbnbs are located in the city. We hypothesize that the Bronx and Brooklyn will have the higher densities of lower priced Airbnbs than Staten Island and Manhattan, and that there will be a positive correlation between price and review score. We hypothesize that the map will show the highest concentration of higher priced Airbnbs in Manhattan. In the cloud word, we hypothesize that better words will obviously correlate with better experiences, and better experiences may mention Manhattan or Brooklyn.     
+
+We don't believe in any sampling bias in this observational study, as this data is from an objective database of ALL airbnb listings. These listings included metadata that we're pulling from, such as price, reviews, and location.    
+
+There was a lot of data cleaning done to produce this data over many iterations. A private github repo / git log of all commits can be produced upon request. Some methods include:    
+
+- Scrubbing language of all punctuation and non-alphanumeric characters
+- Taking a random sample of the data and finding a subset within one std deviation of the mean
+- Removing extraneous values from graphs for easier viewing
 
 
 ```{r setup, include=FALSE}
@@ -24,28 +36,12 @@ library(ggwordcloud)
 library(grid)
 library(gridExtra)
 
-```
-
-## Setting up the project
-
-First, get our data from:
-
-http://insideairbnb.com/get-the-data.html
-
-
-To create these two files, right click the files listings.csv.gz and reviews.csv.gz separately, and click "extract here" or "extract to -> listings.csv", just like we extract the .zip files in class
-
-Before committing and pushing, go to github desktop after you have the data files. Where it lists each file with a checkbox, right click the data files "listings.csv,reviews.csv,listings.csv.gz" and click:     
-"ignore all .csv files(add to .gitignore)", then     
-"ignore all .gz files(add to .gitignore)". 
-
-If the data files are not removed from the list, right click them again and click "Ignore File(add to .gitignore). This will make it so you don't submit large data to the cloud. Github will not accept these large files(even the compressed ones) because of the size of our data.
-
-```{r files}
-
 
 listings <- read.csv('listings_NYC.csv');
 reviews <- read.csv('reviews_NYC.csv');
+
+# In the setup chunk, create a numeric casting of price for analysis in the rest of the code
+listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 ```
 
@@ -55,7 +51,6 @@ This graph show the density of Airbnbs at different prices within the five borou
 
 ```{r listings, echo=FALSE}
 
-listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
   geom_density() +
@@ -73,7 +68,7 @@ ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fil
 ```
 ## Review Scores by Price
 
-This graph shows the review score by price of Airbnbs in each borough. We hypothesized that there would be a positive correlation between price and review score. The data show that higher priced Airbnbs tend to have high review scores. Most of the multithousand dollar Airbnbs do not have review scores below 80. Although more expensive Airbnbs trend towards higher scores, this does not mean that cheaper Airbnbs trend towards lower scores. The Airbnbs with the lower scores tend to be the cheaper ones; however, less expensive Airbnbs also have high scores. he data show that price has less impact on cheaper Airbnb reviews than expensive ones. 
+This graph shows the review score by price of Airbnbs in each borough. We hypothesized that there would be a positive correlation between price and review score. The data show that higher priced Airbnbs tend to have high review scores. Most of the multithousand dollar Airbnbs do not have review scores below 80. Although more expensive Airbnbs trend towards higher scores, this does not mean that cheaper Airbnbs trend towards lower scores. The Airbnbs with the lower scores tend to be the cheaper ones; However, less expensive Airbnbs also have high scores. From this, we conclude that price has less impact on cheaper Airbnb reviews than expensive ones. 
 
 ```{r scatter, warning = FALSE}
 
@@ -89,9 +84,11 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
 
 
 ```
-## Stop Words 
 
 
+# Stop Words 
+
+For this part of the analysis, we will take 20 listings from the top and bottom of the data, then sample another 20 randomly. We will then filter these through a list of stop words(deemed irrelevant to the data) to find relevant and unique words to describe these experiences.
 
 ``` {r stopWords}
 
@@ -143,13 +140,13 @@ worst_review <- tail(joined, n=20)
 # Takes in a data frame and scrubs the review variable with regex - taking out punctuation, numbers and newlines
 filter_regex <- function(data) {
   
-
   # filter data with regex
   data$comments <- gsub("[^a-zA-Z ]","",data$comments, perl=TRUE, fixed = FALSE)
-
-
+  
+  # split strings and put frequencies in a table
   words <- data.frame(table(unlist(strsplit(tolower(data$comments), " "))))
   
+  # name columns and remove stop words
   colnames(words) <- c("word", "count")
     
   words <- words %>% filter((!(words$word %in% stopWords)))
@@ -157,7 +154,6 @@ filter_regex <- function(data) {
 }
 
 # Create our data frames by filtering reviews
-
 best <- filter_regex(best_review)
 avg <- filter_regex(avg_review)
 worst <- filter_regex(worst_review)
@@ -167,8 +163,6 @@ worst <- filter_regex(worst_review)
 ```
 
 ## Reviews Word Analysis
-
-For this part of the analysis, I took 20 listings from the top and bottom of the data, then sampled another 20 randomly. I then filtered these through a list of stop words(deemed irrelevant to the data) to find 'unique' or 'relevant' words to these experiences.
 
 The first correlation I noticed is the use of more abstract words against the expreience of each airbnb. When a place is better, words like "great", "easy", "flexible",  and "confidence" are used. The finding here is that a better experience may not be distinct in what makes it amazing, but rather there is a lack of inconvenience. It seems that people also value communication and accessibility in their AirBNB experience. "resposive", "accommodating", and many names are listed in these reviews. Perhaps there was a personal element to the stays that added to the experience.
 
@@ -200,7 +194,6 @@ w3 <- ggplot(data=worst, mapping=aes(label=word,size=count)) +
   scale_size_area(max_size = 12) +
   theme_bw() +
   labs(title="NYC AirBnb Unique Word Frequency", subtitle="Worst 20 Reviews")
-
 
 w1
 w2
@@ -238,13 +231,13 @@ scatter <- as.data.frame(sample_n(listings, 1000))
 
 ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
   geom_point() +
+  facet_wrap(~ neighbourhood_group_cleansed) +
   theme_bw() +
   labs(title = 'Ratings by Price',
        x = 'Review Score',
        y = 'Number of Reviews') +
    theme(plot.title = element_text(size= 15, face = 'bold'))
-  facet_wrap(~ neighbourhood_group_cleansed) +
-  theme_bw()
+
 
 
  
@@ -257,15 +250,20 @@ Here, we tried to utilize ggmaps and ggplot before resorting to leaflet for our 
 
 The other challenge was taking a small enough subset of the data to map without crashing a computer(three computer crashes were involved in the making of this report). Leaflet offers multiple coloring methods, such as numerical, bin-based, and quantile-based. Quantiles ended up working especially well for this map.
 
-This map
+This map has some interesting findings in the density of properties, and their price. The listings get much more dense the further into Manhattan you go, second to Queens and Brooklyn. Interestingly, price also increases as you get into these areas. As per our earlier findings, Manhattan and Brooklyn are the most expensive boroughs to stay in.
+
+Within Manhattan, values get more dense and more expensive towards the south end. This is the financial district of NYC, where most skyscrapers and businesses are. Perhaps people with financial interests, or wealthier individuals like Wall Street bankers stay in pricier AirBNB's. SoHo and Greenwich Village are also in this part of Manhattan, which must be more expensive.
+
+When people visit NYC, they want to be closer to the center of the city. They likely pay more for staying in or near Manhattan - where most tourist attractions are.
 
 ```{r maps, force = TRUE, message=FALSE, warning=FALSE}
 
-set.seed(50)
-subset <- sample_n(listings, 2000)
+set.seed(200)
+subset <- sample_n(listings, 3000)
 
 stdev <- sd(subset$priceNum)
 mean <- mean(subset$priceNum)
+
 
 # This is within one standard deviation of the mean
 sData <- subset %>% filter(priceNum > (mean - stdev) & priceNum < (mean + stdev))
@@ -290,29 +288,6 @@ leaflet(sData) %>%
   setView(-74.00, 40.71, zoom = 12) %>%
   addProviderTiles("CartoDB.Positron")
 
-
-#clrsrev <- colorBin(palette = "RdYlBu", domain = sData$review_scores_rating, reverse = TRUE, na.color = NA)
-clrsrev <- colorBin(palette = "RdYlBu", domain = sData$review_scores_rating, reverse = TRUE, na.color = NA)
-
-# Where are most reviews found, and how much are they?
-# Markers are stored on review scores < 60
-leaflet(sData %>% filter(review_scores_rating < 60)) %>%
-  addTiles() %>%
-  addCircleMarkers(data = sData %>% filter(!is.na(review_scores_rating)),
-           lng = ~longitude,
-           lat = ~latitude,
-           color = ~clrsrev(review_scores_rating),
-           stroke = FALSE, fillOpacity = 0.4, radius = 4) %>%
-  addLegend("bottomright", pal = clrsrev, values = ~review_scores_rating,
-    title = "Review Score",
-    opacity = 1) %>%
-  addMarkers( clusterOptions = markerClusterOptions() ) %>%
-  setView(-74.00, 40.71, zoom = 12) %>%
-  addProviderTiles("CartoDB.Positron")
-
-
-
-
-
-
 ```
+
+## Conclusions
