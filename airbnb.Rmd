@@ -75,16 +75,17 @@ This graph shows the review score by price of Airbnbs in each borough. We hypoth
 
 ```{r scatter, warning = FALSE}
 
-
-ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
+a1 <- ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
   geom_point() +
   facet_wrap(~ neighbourhood_group_cleansed) +
-  guides(fill = FALSE) +
   labs(title = 'Review Scores by Price',
        x = 'Price',
        y = 'Review Score') +
-  theme(plot.title = element_text(size=15, face = 'bold')) +
   theme_bw()
+
+# using guides() did not work to remove our legend, so we unfortunately had to go with theme()
+# we understand this is not the best way to do it, but it seemed to work the best
+a1 + theme(plot.title = element_text(size=15, face = 'bold'), legend.position = "none")
 
 ```
 
