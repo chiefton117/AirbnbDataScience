@@ -2,20 +2,23 @@
 title: "AirBNB Data Analysis"
 author: "Tim Harrold, Madison Brown, Yifei Hao"
 date: "3/10/2021"
-output: html_document
+output: html_document:
+      toc: true
+      df_print:  paged 
 ---
 
-Our data was sourced from airbnb's website: http://insideairbnb.com/get-the-data.html    
+Our data was sourced from Airbnb's website: http://insideairbnb.com/get-the-data.html    
 
 In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City, and what makes the best Airbnb experience. We ask the question, which characteristics are correlated with a better reported experience.    
 
 This analysis will include graphs to show the relationships between price and neighborhood, rating and neighborhood, rating and number of reviews, and rating and review stop words. We will be using tables, density plots, scatter plots, and maps to analyze the correlations between these variables. To give a qualitative analysis of peoples stays, we will be using word cloud to filter keywords from the reviews. A map of the city will provide spacial information on where the most vs least expensive Airbnbs are located in the city.
 
-We don't believe in any sampling bias by AirBNB in this observational 'study', as this data is from an objective database of ALL airbnb listings. These listings included metadata that we're pulling from, such as price, reviews, and location. However, it is possible that the qualitative elements such as amenities may be biased, as these are up to the owner to create. Some owners may oversell their listing. This bias hopefully will be overcome by the reviews of said listing.    
+We don't believe in any sampling bias by Airbnb in this observational 'study', as this data is from an objective database of ALL airbnb listings. These listings included metadata that we're pulling from, such as price, reviews, and location. However, it is possible that the qualitative elements such as amenities may be biased, as these are up to the property owners to create. Some owners may oversell their listing. This bias hopefully will be overcome by the reviews of said listing.    
 
 There was a lot of data cleaning done to produce this data over many iterations. A private github repo / git log of all commits can be produced upon request. Some methods include:    
 
-- Scrubbing language of all punctuation and non-alphanumeric characters
+- Scrubbing language of all punctuation and non-alphanumeric characters using regular expressions
+- Counting word frequencies
 - Counting elements in lists present in the data
 - Taking a random sample of the data and finding a subset within one std deviation of the mean
 - Removing extraneous values from graphs for easier viewing    
@@ -67,6 +70,8 @@ ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fil
 
 
 ```
+
+
 ## Review Scores by Price
 
 This graph shows the review score by price of Airbnbs in each borough. We hypothesized that there would be a positive correlation between price and review score. The data show that higher priced Airbnbs tend to have high review scores. Most of the multithousand dollar Airbnbs do not have review scores below 80. Although more expensive Airbnbs trend towards higher scores, this does not mean that cheaper Airbnbs trend towards lower scores. The Airbnbs with the lower scores tend to be the cheaper ones; However, less expensive Airbnbs also have high scores. From this, we conclude that price has less impact on cheaper Airbnb reviews than expensive ones. 
