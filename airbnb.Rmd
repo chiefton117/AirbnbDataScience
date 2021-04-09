@@ -7,17 +7,20 @@ output: html_document
 
 Our data was sourced from airbnb's website: http://insideairbnb.com/get-the-data.html    
 
-In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City, and what makes the best Airbnb experience. We ask the question, which characteristics (variables) are correlated with a better reported experience.    
+In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City, and what makes the best Airbnb experience. We ask the question, which characteristics are correlated with a better reported experience.    
 
-This analysis will include graphs to show the relationships between price and neighborhood, rating and neighborhood, rating and number of reviews, and rating and review stop words. We will be using tables, density plots, scatter plots, box plots, and maps to analyze the correlations between these variables. To give a qualitative analysis of peoples stays, we will be using word cloud to filter keywords from the reviews. A map of the city will provide spacial information on where the most vs least expensive Airbnbs are located in the city. We hypothesize that the Bronx and Brooklyn will have the higher densities of lower priced Airbnbs than Staten Island and Manhattan, and that there will be a positive correlation between price and review score. We hypothesize that the map will show the highest concentration of higher priced Airbnbs in Manhattan. In the cloud word, we hypothesize that better words will obviously correlate with better experiences, and better experiences may mention Manhattan or Brooklyn.     
+This analysis will include graphs to show the relationships between price and neighborhood, rating and neighborhood, rating and number of reviews, and rating and review stop words. We will be using tables, density plots, scatter plots, and maps to analyze the correlations between these variables. To give a qualitative analysis of peoples stays, we will be using word cloud to filter keywords from the reviews. A map of the city will provide spacial information on where the most vs least expensive Airbnbs are located in the city.
 
-We don't believe in any sampling bias in this observational study, as this data is from an objective database of ALL airbnb listings. These listings included metadata that we're pulling from, such as price, reviews, and location.    
+We don't believe in any sampling bias by AirBNB in this observational 'study', as this data is from an objective database of ALL airbnb listings. These listings included metadata that we're pulling from, such as price, reviews, and location. However, it is possible that the qualitative elements such as amenities may be biased, as these are up to the owner to create. Some owners may oversell their listing. This bias hopefully will be overcome by the reviews of said listing.    
 
 There was a lot of data cleaning done to produce this data over many iterations. A private github repo / git log of all commits can be produced upon request. Some methods include:    
 
 - Scrubbing language of all punctuation and non-alphanumeric characters
+- Counting elements in lists present in the data
 - Taking a random sample of the data and finding a subset within one std deviation of the mean
-- Removing extraneous values from graphs for easier viewing
+- Removing extraneous values from graphs for easier viewing    
+
+This data is interesting because it is real. AirBNB is becoming a more viable alternative to hotels or motels because they are cheaper, cozier, and closer to the city experience than a hotel. Each experience is unique, making it hard to know exactly what a good AirBNB looks like. Finding these qualities can make your next vacation better, and help you do your research before committing to plans.
 
 
 ```{r setup, include=FALSE}
@@ -43,7 +46,6 @@ reviews <- read.csv('reviews_NYC.csv');
 # In the setup chunk, create a numeric casting of price for analysis in the rest of the code
 listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
-tibble(listings)
 
 ```
 
@@ -52,7 +54,6 @@ tibble(listings)
 This graph show the density of Airbnbs at different prices within the five boroughs.  We hypothesized that the Bronx and Brooklyn would have the higher densities of lower priced Airbnbs than Staten Island and Manhattan. Our hypothesis is only partially correct. Brooklyn has a similar distribution to Staten Island, and queens has a similar distibution to the Bronx. Our hypothesis was supported in the case of the Bronx and Manhattan. This data show that the Bronx contain a higher distribution of lower priced Airbnbs than the other boroughs. Manhattan has the lowest density of lower priced Airbnbs. This is likely due to the difference in housing prices between Manhattan and the Bronx. 
 
 ```{r listings, echo=FALSE}
-
 
 ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
   geom_density() +
@@ -64,9 +65,6 @@ ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fil
   theme(plot.title = element_text(size= 15, face = 'bold')) +
   theme_bw()
 
-##ggplot(data = listings %>% filter(review_scores_rating > 50), mapping = aes(x=review_scores_rating, fill=neighbourhood_group_cleansed)) +
-  ##geom_density() +
-  ##facet_wrap(~ neighbourhood_group_cleansed)
 
 ```
 ## Review Scores by Price
@@ -129,7 +127,7 @@ stopWords <- c("airbnb", "a", "about", "above", "above", "across", "after", "aft
 # replace reviews listing id for join
 reviews$id <- reviews$listing_id
 
-# create a new joined frame with less data, for easier analysis
+# create a new joined frame with less data and grouped listings, for easier analysis
 ordered <- listings %>%
   select(id, priceNum, neighbourhood_group_cleansed, review_scores_rating) %>%
   group_by(id, neighbourhood_group_cleansed) %>%
@@ -138,6 +136,7 @@ ordered <- listings %>%
 
 joined <- as.data.frame(left_join(ordered, reviews, by="id"))
 
+# take samples of the data frame from the top, bottom, and (hopefully) middle
 avg_review <- sample_n(joined, 20)
 best_review <- head(joined, n=20)
 worst_review <- tail(joined, n=20)
