@@ -24,24 +24,6 @@ library(ggwordcloud)
 library(grid)
 library(gridExtra)
 
-# The map theme taken from the book
-theme_map <- function(base_size=9, base_family="") {
-    require(grid)
-    theme_bw(base_size=base_size, base_family=base_family) %+replace%
-        theme(axis.line=element_blank(),
-              axis.text=element_blank(),
-              axis.ticks=element_blank(),
-              axis.title=element_blank(),
-              panel.background=element_blank(),
-              panel.border=element_blank(),
-              panel.grid=element_blank(),
-              panel.spacing=unit(0, "lines"),
-              plot.background=element_blank(),
-              legend.justification = c(0,0),
-              legend.position = c(0,0)
-              )
-}
-
 ```
 
 ## Setting up the project
@@ -59,7 +41,7 @@ Before committing and pushing, go to github desktop after you have the data file
 
 If the data files are not removed from the list, right click them again and click "Ignore File(add to .gitignore). This will make it so you don't submit large data to the cloud. Github will not accept these large files(even the compressed ones) because of the size of our data.
 
-```{r setup}
+```{r files}
 
 
 listings <- read.csv('listings_NYC.csv');
@@ -95,6 +77,7 @@ This graph shows the review score by price of Airbnbs in each borough. We hypoth
 
 ```{r scatter, warning = FALSE}
 
+
 ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
   geom_point() +
   facet_wrap(~ neighbourhood_group_cleansed) +
@@ -104,6 +87,7 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
        y = 'Review Score') +
   theme(plot.title = element_text(size=15, face = 'bold')) 
 
+
 ```
 ## Stop Words 
 
@@ -112,24 +96,24 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
 ``` {r stopWords}
 
 # First, we'll define our array of stop words
-stopWords <- c("airbnb", "a", "about", "above", "above", "across", "after", "afterwards", "again", "against", "all", "almost", 
+stopWords <- c("airbnb", "a", "about", "above", "above", "across", "after", "afterwards", "again", "against", "algo", "all", "almost", 
     "alone", "along", "alojen", "already", "also","although","always","am", "ammar","among", "amongst", "amoungst", "amount",  
-    "an", "and", "another", "any","anyhow","anyone","anything","anyway", "anywhere", "are", "aren't", "around", "as",  
+    "an", "and", "another", "any","anyhow","anyone","anything","anyway", "anywhere", "are", "aren't", "arrive", "arrived", "around", "as",  
     "at", "back", "bc", "be","became", "because", "becky", "become","becomes", "becoming", "been", "before", "beforehand", "behind", 
     "being", "below", "beside", "besides", "between", "beyond", "bill", "both", "bottom","but", "by", "call", 
-    "can", "cannot", "cant", "charline", "casper","chaqueta", "chayda", "christina", "co", "con", "could", "couldnt", "de", "definitely", "definetely", "defin", "describe", "detail", "did", "do", "doesn", "doesn't", "done", "don't", 
+    "can", "cannot", "cant", "card", "charline", "casper","chaqueta", "chayda", "christina", "co", "con", "could", "couldnt", "de", "definitely", "definetely", "dell", "defin",     "describe", "detail", "did", "do", "doesn", "doesn't", "done", "don't", 
     "down", "due", "during", "each", "eg", "eight", "either", "eleven","else", "elsewhere", "empty", "enough", "episode", 
     "etc", "even", "ever", "every", "everyone", "everything", "everywhere", "except", "few", "fifteen", "fify", 
     "fill", "find", "fire", "first", "five", "for", "former", "formerly", "forty", "found", "four", "from", 
     "front", "full", "further", "get", "give", "go", "going", "had", "has", "hasnt", "have", "he", "hello", "hence", "her", 
     "here", "hereafter", "hereby", "herein", "hereupon", "hers", "herself", "him", "himself", "his", "how",
     "however", "hundred", "i", "ie", "if", "i'll", "in", "inc", "indeed", "interest", "into", "is", "it", "its", "it’s", "itself", "i've", "just",
-    "keep", "last", "latter", "latterly", "least", "leave", "less", "let's", "like", "ltd", "made", "many", "may", "me", "met", "meanwhile", "message",
+    "keep", "la", "last", "latter", "latterly", "least", "leave", "less", "let's", "like", "ltd", "made", "many", "may", "me", "met", "meanwhile", "message",
     "might", "mill", "mine", "more", "moreover", "most", "mostly", "move", "much", "must", "my", "myself", 
     "name", "namely", "neither", "never", "nevertheless", "next", "nine", "no", "nobody", "none", "noone", "nsure", 
     "nor", "not", "nothing", "now", "nowhere", "nthe", "of", "off", "often", "on", "once", "one", "only", "onto", "or", 
-    "other", "others", "otherwise", "our", "ours", "ourselves", "out", "over", "own", "para","part", "per", "perhaps", 
-    "please", "put", "rather", "re", "same", "see", "seem", "seemed", "seeming", "seems", "serious", "several", 
+    "other", "others", "otherwise", "our", "ours", "ourselves", "out", "over", "own", "para","part", "per", "perhaps", "place", 
+    "please", "put", "rather", "re", "room", "same", "see", "seem", "seemed", "seeming", "seems", "serious", "several", 
     "she", "should", "show", "side", "since", "six", "sixty", "so", "some", "somehow", "someone", 
     "something", "sometime", "sometimes", "somewhere", "still", "such", "take", "takes", "ten", "than", 
     "that", "thats", "the", "their", "them", "themselves", "the", "then", "thence", "there", "thereafter", "thereby", "therefore", 
@@ -138,7 +122,7 @@ stopWords <- c("airbnb", "a", "about", "above", "above", "across", "after", "aft
     "twenty", "two", "un", "under", "until", "up", "upon", "us", "very", "via", "was", "way", "we", "well", "were", 
     "what", "whatever", "when", "whence", "whenever", "where", "whereafter", "whereas", "whereby", "wherein",
     "whereupon", "wherever", "whether", "which", "while", "whither", "who", "whoever", "whole", "whom", "whose", 
-    "why", "will", "with", "within", "without", "would", "year", "years", "yet", "you", "your", "you're", "yours", "yourself", "yourselves", "ve", "")
+    "why", "will", "with", "within", "without", "would", "year", "years", "yet", "you", "your", "you're", "yours", "yourself", "yourselves", "ve", "", " ")
 
 # replace reviews listing id for join
 reviews$id <- reviews$listing_id
@@ -159,48 +143,68 @@ worst_review <- tail(joined, n=20)
 # Takes in a data frame and scrubs the review variable with regex - taking out punctuation, numbers and newlines
 filter_regex <- function(data) {
   
+
   # filter data with regex
-  sample <- tolower(gsub("[\\\r\n[:digit:]+]","",data, perl=TRUE, fixed = FALSE))
-  sample <- gsub('[[:punct:] ]+',' ',sample)
+  data$comments <- gsub("[^a-zA-Z ]","",data$comments, perl=TRUE, fixed = FALSE)
+
+
+  words <- data.frame(table(unlist(strsplit(tolower(data$comments), " "))))
   
-  # remove stop words and all 3 letter or less words
-  words <- data.frame(word = setdiff(str_split(sample, " ", simplify=TRUE), stopWords)) %>% 
-    filter(nchar(word) > 3)
-  
-  # add integer attribute for repeated words
-  freqs <- words %>% count(word) %>% arrange(desc(n))
+  colnames(words) <- c("word", "count")
+    
+  words <- words %>% filter((!(words$word %in% stopWords)))
   
 }
 
 # Create our data frames by filtering reviews
+
 best <- filter_regex(best_review)
 avg <- filter_regex(avg_review)
 worst <- filter_regex(worst_review)
 
 
+
 ```
 
-## Reviews 
+## Reviews Word Analysis
+
+For this part of the analysis, I took 20 listings from the top and bottom of the data, then sampled another 20 randomly. I then filtered these through a list of stop words(deemed irrelevant to the data) to find 'unique' or 'relevant' words to these experiences.
+
+The first correlation I noticed is the use of more abstract words against the expreience of each airbnb. When a place is better, words like "great", "easy", "flexible",  and "confidence" are used. The finding here is that a better experience may not be distinct in what makes it amazing, but rather there is a lack of inconvenience. It seems that people also value communication and accessibility in their AirBNB experience. "resposive", "accommodating", and many names are listed in these reviews. Perhaps there was a personal element to the stays that added to the experience.
+
+Average reviews were somewhere in the middle, where "clean", "available", and "comfortable" showed up often. These aren't generally descriptive of an exceptional experience, and moreso meet the baseline of a good AirBNB. Accessibility is still mentioned with "access", "communication", and "easy". Less names are mentioned in this data, but they are still present. Some people may have had better experiences when more names were mentioned. "Apartment" showed up more than any other word, as was the case with the top 20 graph. In New York City, apartments likely make up most properties. An average stay would probably be in an apartment(although some were in bungalows, apparently).
+
+In our worst experiences, lots of red flags immediately come up. "Felons", "Smell", and "Homeless" are evidently bad. The learning here is the usage of less abstract words and more nouns. It seems specific things were present, and people have a lot to say about specific aspects of their stay. "Bathroom", "Room", "Water", "Basement" and "Smoke" showed up often - these things must contribute to negative experiences. People do not mention accessibility OR names, meaning the owners may not even be present for the experience. Where the best and average stays mentioned apartments, the worst experiences are "places".
+
+Some interesting anomalies in the bad experiences include "sin", "urine", "cameras", and "pathological" - One can easily imagine a bad scenario with these words.
+
+
 
 ```{r reviews, message=FALSE, warning=FALSE}
 
 # Create some word clouds
-w1 <- ggplot(data=best, mapping=aes(label=word,size=n)) +
-  geom_text_wordcloud(rm_outside = TRUE) +
+w1 <- ggplot(data=best, mapping=aes(label=word,size=count)) +
+  geom_text_wordcloud(rm_outside = TRUE, area_corr_power = 1) +
+  scale_size_area(max_size = 8) +
   theme_bw() +
   labs(title="NYC AirBnb Unique Word Frequency", subtitle="Top 20 Reviews")
 
-w2 <- ggplot(data=avg, mapping=aes(label=word,size=n)) +
-  geom_text_wordcloud(rm_outside = TRUE) +
+w2 <- ggplot(data=avg, mapping=aes(label=word,size=count)) +
+  geom_text_wordcloud(rm_outside = TRUE, area_corr_power = 1) +
+  scale_size_area(max_size = 12) +
   theme_bw() +
   labs(title="NYC AirBnb Unique Word Frequency", subtitle="20 Randomly Sampled Reviews")
 
-w3 <- ggplot(data=worst, mapping=aes(label=word,size=n)) +
-  geom_text_wordcloud(rm_outside = TRUE) +
+w3 <- ggplot(data=worst, mapping=aes(label=word,size=count)) +
+  geom_text_wordcloud(rm_outside = TRUE, area_corr_power = 1) +
+  scale_size_area(max_size = 12) +
   theme_bw() +
   labs(title="NYC AirBnb Unique Word Frequency", subtitle="Worst 20 Reviews")
 
-grid.arrange(w1, w2, w3)
+
+w1
+w2
+w3
 
 ```
 ## Box Plot of Price
@@ -225,30 +229,44 @@ ggplot(data = boxplot %>% filter(priceNum < 2000),
 
 ## Scatter plot of Ratings by Price
 
+<<<<<<< Updated upstream
 (Working on this Description- Madison)
 
 ```{r scatter, warning = FALSE}
-
 set.seed(129)
 scatter <- as.data.frame(sample_n(listings, 1000))
 
-ggplot(data = scatter %>% filter(number_of_reviews < 500), mapping = aes(x = review_scores_rating, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
+ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
   geom_point() +
   theme_bw() +
   labs(title = 'Ratings by Price',
        x = 'Review Score',
        y = 'Number of Reviews') +
    theme(plot.title = element_text(size= 15, face = 'bold'))
+  facet_wrap(~ neighbourhood_group_cleansed) +
+  theme_bw()
 
 
  
 ```
 
+<<<<<<< Updated upstream
 ## Map of NYC (WHAT IS OUR VARIABLE?)
 
 Show price and/or reviews in each neighborhood
+=======
+## Price Map
+
+Here, we tried to utilize ggmaps and ggplot before resorting to leaflet for our map. I tried mapping the review scores, which didn't quite display right(most scores are actually pretty high!) even when mapping 68% of the data within one standard deviation of the mean.
+
+The other challenge was taking a small enough subset of the data to map without crashing a computer(three computer crashes were involved in the making of this report). Leaflet offers multiple coloring methods, such as numerical, bin-based, and quantile-based. Quantiles ended up working especially well for this map.
+
+This map
+
+>>>>>>> Stashed changes
 ```{r maps, force = TRUE, message=FALSE, warning=FALSE}
 
+set.seed(50)
 subset <- sample_n(listings, 2000)
 
 stdev <- sd(subset$priceNum)
@@ -259,19 +277,7 @@ sData <- subset %>% filter(priceNum > (mean - stdev) & priceNum < (mean + stdev)
 # This is within two standard deviations of the mean
 sd2Data <- subset %>% filter(priceNum > mean - (2*stdev) & priceNum < mean + (2*stdev))
 
-
-#sData <- sample_n(listings, 500) %>% filter(priceNum > mean - stdev & priceNum < mean + stdev)
-
-# Check how full our dataset is, between stdevs
-ggplot(data = sData, mapping = aes(x = priceNum)) +
-  geom_histogram()
-
-# Plot price against rating to confirm correlation
-ggplot(data = sData, mapping = aes(x = priceNum, review_scores_rating)) +
-  geom_point()
-
-clrs <- colorBin(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, bins = 15, na.color = NA)
-#clrs <- colorQuantile(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, na.color = NA)
+clrs <- colorQuantile(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, na.color = NA)
 
 # plot price on map, not sure what the actual markers signify?
 leaflet(sData) %>%
@@ -282,12 +288,13 @@ leaflet(sData) %>%
            color = ~clrs(priceNum),
            stroke = FALSE, fillOpacity = 0.4, radius = 4) %>%
   addLegend("bottomright", pal = clrs, values = ~priceNum,
-    title = "Price",
-    labFormat = labelFormat(prefix = "$"),
+    title = "Price(Quantile)",
+    labFormat = labelFormat(prefix = ""),
     opacity = 1) %>%
   addMarkers( clusterOptions = markerClusterOptions() ) %>%
   setView(-74.00, 40.71, zoom = 12) %>%
   addProviderTiles("CartoDB.Positron")
+
 
 #clrsrev <- colorBin(palette = "RdYlBu", domain = sData$review_scores_rating, reverse = TRUE, na.color = NA)
 clrsrev <- colorBin(palette = "RdYlBu", domain = sData$review_scores_rating, reverse = TRUE, na.color = NA)
