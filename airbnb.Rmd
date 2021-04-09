@@ -98,8 +98,9 @@ stopWords <- c("airbnb", "a", "about", "above", "above", "across", "after", "aft
     "an", "and", "another", "any","anyhow","anyone","anything","anyway", "anywhere", "are", "aren't", "arrive", "arrived", "around", "as",  
     "at", "back", "bc", "be","became", "because", "becky", "become","becomes", "becoming", "been", "before", "beforehand", "behind", 
     "being", "below", "beside", "besides", "between", "beyond", "bill", "both", "bottom","but", "by", "call", 
-    "can", "cannot", "cant", "card", "charline", "casper","chaqueta", "chayda", "christina", "co", "con", "could", "couldnt", "de", "definitely", "definetely", "dell", "defin",     "describe", "detail", "did", "do", "doesn", "doesn't", "done", "don't", 
-    "down", "due", "during", "each", "eg", "eight", "either", "eleven","else", "elsewhere", "empty", "enough", "episode", 
+    "can", "cannot", "cant", "card","chaqueta", "chayda", "co", "con", "could", "couldnt", "de", "definitely", 
+    "definetely", "dell", "defin", "describe", "detail", "did", "do", "doesn", "doesn't", "done", "don't", "down", "due", "during", 
+    "each", "eg", "eight", "either", "eleven","else", "elsewhere", "empty", "enough", "episode", 
     "etc", "even", "ever", "every", "everyone", "everything", "everywhere", "except", "few", "fifteen", "fify", 
     "fill", "find", "fire", "first", "five", "for", "former", "formerly", "forty", "found", "four", "from", 
     "front", "full", "further", "get", "give", "go", "going", "had", "has", "hasnt", "have", "he", "hello", "hence", "her", 
@@ -138,6 +139,7 @@ best_review <- head(joined, n=20)
 worst_review <- tail(joined, n=20)
 
 # Takes in a data frame and scrubs the review variable with regex - taking out punctuation, numbers and newlines
+# NOTE: THIS DATA FRAME MUST HAVE A CHARACTER ATTRIBUTE 'COMMENTS'
 filter_regex <- function(data) {
   
   # filter data with regex
@@ -164,13 +166,13 @@ worst <- filter_regex(worst_review)
 
 ## Reviews Word Analysis
 
-The first correlation I noticed is the use of more abstract words against the expreience of each airbnb. When a place is better, words like "great", "easy", "flexible",  and "confidence" are used. The finding here is that a better experience may not be distinct in what makes it amazing, but rather there is a lack of inconvenience. It seems that people also value communication and accessibility in their AirBNB experience. "resposive", "accommodating", and many names are listed in these reviews. Perhaps there was a personal element to the stays that added to the experience.
+The first correlation I noticed is the use of more abstract words against the expreience of each airbnb. When a place is better, words like "great", "easy", "flexible",  and "confidence" are used. The finding here is that a better experience may not be distinct in what makes it amazing, but rather there is a lack of inconvenience. It seems that people also value communication and accessibility in their AirBNB experience. "resposive", "accommodating", and many names are listed in these reviews. Perhaps there was a personal element to the stays that added to the experience. It is also worth noting that this is the only word cloud that easily fit into its box - people have a lot less to say when they are satisfied than when they are upset.
 
 Average reviews were somewhere in the middle, where "clean", "available", and "comfortable" showed up often. These aren't generally descriptive of an exceptional experience, and moreso meet the baseline of a good AirBNB. Accessibility is still mentioned with "access", "communication", and "easy". Less names are mentioned in this data, but they are still present. Some people may have had better experiences when more names were mentioned. "Apartment" showed up more than any other word, as was the case with the top 20 graph. In New York City, apartments likely make up most properties. An average stay would probably be in an apartment(although some were in bungalows, apparently).
 
 In our worst experiences, lots of red flags immediately come up. "Felons", "Smell", and "Homeless" are evidently bad. The learning here is the usage of less abstract words and more nouns. It seems specific things were present, and people have a lot to say about specific aspects of their stay. "Bathroom", "Room", "Water", "Basement" and "Smoke" showed up often - these things must contribute to negative experiences. People do not mention accessibility OR names, meaning the owners may not even be present for the experience. Where the best and average stays mentioned apartments, the worst experiences are "places".
 
-Some interesting anomalies in the bad experiences include "sin", "urine", "cameras", and "pathological" - One can easily imagine a bad scenario with these words.
+Some interesting anomalies in the bad experiences include "sin", "knees", "cameras", "ghost", and "pathological" - one can easily imagine a bad scenario with these words.
 
 
 
@@ -195,11 +197,14 @@ w3 <- ggplot(data=worst, mapping=aes(label=word,size=count)) +
   theme_bw() +
   labs(title="NYC AirBnb Unique Word Frequency", subtitle="Worst 20 Reviews")
 
+# a grid.arrange approach cut too much from the boxes, making analysis harder
 w1
 w2
 w3
 
 ```
+
+
 ## Box Plot of Price
 
 (Working on this description- Madison)
@@ -225,7 +230,8 @@ ggplot(data = boxplot %>% filter(priceNum < 2000),
 
 (Working on this Description- Madison)
 
-```{r scatter, warning = FALSE}
+```{r scatterprice, warning = FALSE}
+
 set.seed(129)
 scatter <- as.data.frame(sample_n(listings, 1000))
 
@@ -244,7 +250,7 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
 ```
 
 
-## Price Map
+## Mapped Listings by Price
 
 Here, we tried to utilize ggmaps and ggplot before resorting to leaflet for our map. I tried mapping the review scores, which didn't quite display right(most scores are actually pretty high!) even when mapping 68% of the data within one standard deviation of the mean.
 
@@ -291,3 +297,9 @@ leaflet(sData) %>%
 ```
 
 ## Conclusions
+
+
+
+## Limitations
+
+This data was very thorough, expansive and full of opportunities for analysis. While we found some great conclusions, the size of the data presented a limitation for us. Several parts of the data were not computationally feasible for all 37k+ listings, so we took random samples that may not have been represenatative. This study does not utilize many variables to find what correlates with positive reviews, such as bed count or accomodations. In the future, one could use more variables to see what neighborhoods or conditions make for a better experience. One could also analyze each neighborhood or borough independently. Manhattan obviously has another level of experience than the Bronx. Thus, a good AirBNB in the Bronx might be subpar in Manhattan. Analyzing what makes the experience better by neighborhood could be more individualized, as it could be based on different goals and variables.
