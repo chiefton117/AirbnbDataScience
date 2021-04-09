@@ -229,7 +229,7 @@ ggplot(data = boxplot %>% filter(priceNum < 2000),
 
 ## Scatter plot of Ratings by Price
 
-<<<<<<< Updated upstream
+
 (Working on this Description- Madison)
 
 ```{r scatter, warning = FALSE}
@@ -250,11 +250,7 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
  
 ```
 
-<<<<<<< Updated upstream
-## Map of NYC (WHAT IS OUR VARIABLE?)
 
-Show price and/or reviews in each neighborhood
-=======
 ## Price Map
 
 Here, we tried to utilize ggmaps and ggplot before resorting to leaflet for our map. I tried mapping the review scores, which didn't quite display right(most scores are actually pretty high!) even when mapping 68% of the data within one standard deviation of the mean.
@@ -263,7 +259,6 @@ The other challenge was taking a small enough subset of the data to map without 
 
 This map
 
->>>>>>> Stashed changes
 ```{r maps, force = TRUE, message=FALSE, warning=FALSE}
 
 set.seed(50)
