@@ -2,7 +2,8 @@
 title: "AirBNB Data Analysis"
 author: "Tim Harrold, Madison Brown, Yifei Hao"
 date: "3/10/2021"
-output: html_document:
+output: 
+  html_document:
       toc: true
       df_print:  paged 
 ---
@@ -212,6 +213,40 @@ w3
 
 ```
 
+## Box Plot of Price
+
+(Working on this description- Madison)
+
+```{r boxplot}
+boxplot <- as.data.frame(sample_n(listings, 1500))
+ggplot(data = boxplot %>% filter(priceNum < 2000), 
+       mapping = aes(x = neighbourhood_group_cleansed, y = priceNum, fill = neighbourhood_group_cleansed)) +
+  geom_boxplot() +
+  theme(plot.title = element_text(size= 15, face = 'bold')) +
+  labs(title = 'Price by Neighborhood',
+       x = 'Neighborhood',
+       y = 'Price') +
+  guides(fill = FALSE) +
+  theme_bw()
+  
+```
+
+## Scatter plot of Ratings by Price
+
+(Working on this Description- Madison)
+
+```{r scatter, warning = FALSE}
+set.seed(129)
+scatter <- as.data.frame(sample_n(listings, 1000))
+ggplot(data = scatter %>% filter(number_of_reviews < 500), mapping = aes(x = review_scores_rating, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
+  geom_point() +
+  theme_bw() +
+  labs(title = 'Ratings by Price',
+       x = 'Review Score',
+       y = 'Number of Reviews') +
+   theme(plot.title = element_text(size= 15, face = 'bold'))
+ 
+```
 
 ## Amenities by Price and Score
 
