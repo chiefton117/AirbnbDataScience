@@ -43,6 +43,8 @@ reviews <- read.csv('reviews_NYC.csv');
 # In the setup chunk, create a numeric casting of price for analysis in the rest of the code
 listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
+tibble(listings)
+
 ```
 
 ## Density by Price
@@ -83,7 +85,6 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
        y = 'Review Score') +
   theme(plot.title = element_text(size=15, face = 'bold')) +
   theme_bw()
-
 
 ```
 
@@ -207,48 +208,47 @@ w3
 ```
 
 
-## Box Plot of Price
+## Amenities by Price and Score
 
 (Working on this description- Madison)
 
-```{r boxplot}
-boxplot <- as.data.frame(sample_n(listings, 1500))
+```{r amenities, warning=FALSE}
 
-ggplot(data = boxplot %>% filter(priceNum < 2000), 
-       mapping = aes(x = neighbourhood_group_cleansed, y = priceNum, fill = neighbourhood_group_cleansed)) +
-  geom_boxplot() +
+amens <- as.data.frame(sample_n(listings, 1500))
+
+# This function takes in a list (with csv), and returns the length - the list may not be casted as such
+# In the case of AirBNB, this is more efficient than modifying their amenities list to cast it as a list
+listlen <- function(x) {
+  length(strsplit(x, ",")[[1]])
+}
+
+# Apply the amenities counting function and store it in a new attribute
+amens$amenCount <- as.numeric(lapply(amens$amenities, listlen))
+
+a1 <- ggplot(data = amens,
+       mapping = aes(x = amenCount, y=review_scores_rating)) +
+  geom_point() +
   theme(plot.title = element_text(size= 15, face = 'bold')) +
-  labs(title = 'Price by Neighborhood',
-       x = 'Neighborhood',
+  labs(title = 'Review Score by Number of Amenities',
+       x = 'Number of Amenities',
+       y = 'Review Score') +
+  guides(fill = FALSE) +
+  theme_bw()
+
+a2 <- ggplot(data = amens %>% filter(priceNum < 2000),
+       mapping = aes(x = amenCount, y=priceNum)) +
+  geom_point() +
+  theme(plot.title = element_text(size= 15, face = 'bold')) +
+  labs(title = 'Price by Number of Amenities',
+       subtitle= 'Prices > 2000 removed for easier interpretation',
+       x = 'Number of Amenities',
        y = 'Price') +
   guides(fill = FALSE) +
   theme_bw()
+
+grid.arrange(a1, a2)
   
 
-```
-
-## Scatter plot of Ratings by Price
-
-
-(Working on this Description- Madison)
-
-```{r scatterprice, warning = FALSE}
-
-set.seed(129)
-scatter <- as.data.frame(sample_n(listings, 1000))
-
-ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
-  geom_point() +
-  facet_wrap(~ neighbourhood_group_cleansed) +
-  theme_bw() +
-  labs(title = 'Ratings by Price',
-       x = 'Review Score',
-       y = 'Number of Reviews') +
-   theme(plot.title = element_text(size= 15, face = 'bold'))
-
-
-
- 
 ```
 
 
@@ -300,8 +300,12 @@ leaflet(sData) %>%
 
 ## Conclusions
 
+New York City has a lot to do, and a lot of unique experiences per neighborhood and borough. We believe that some while some neighborhoods may not be as highly rated as others, the price you pay for an AirBNB is generally a good way to ensure a decent experience. Our qualitative analysis shows some diminishing return - meaning there is a point where spending more money will not make a better experience. An illustrative fact is that all five boroughs have a high average review score, yet the price increases significantly closer to Manhattan and Brooklyn. Of course, correlation and causation are not the same. Paying more for an AirBNB is NOT the reason it is good. Amenities usually have something to do with quality, meaning a good AirBNB usually has a decent amount of them.    
 
+Because people generally use AirBNBs as a base for their vacation, we believe the biggest determinant in a good experience is the location. Most people simply want an owner that makes it easy to get in, drop their luggage and see the city. Worse AirBNB experiences usually come from necessities not being met - such as a dirty apartment or illegal happenings in or around the AirBNB.    
+
+If these basic needs are met at a baseline, we believe that a positive review and score will be given. A good AirBNB experience is a simple, accomodating apartment in a decent location - one that is not dirty or haunted.
 
 ## Limitations
 
-This data was very thorough, expansive and full of opportunities for analysis. While we found some great conclusions, the size of the data presented a limitation for us. Several parts of the data were not computationally feasible for all 37k+ listings, so we took random samples that may not have been represenatative. This study does not utilize many variables to find what correlates with positive reviews, such as bed count or accomodations. In the future, one could use more variables to see what neighborhoods or conditions make for a better experience. One could also analyze each neighborhood or borough independently. Manhattan obviously has another level of experience than the Bronx. Thus, a good AirBNB in the Bronx might be subpar in Manhattan. Analyzing what makes the experience better by neighborhood could be more individualized, as it could be based on different goals and variables.
+This data was very thorough, expansive and full of opportunities for analysis. While we found some great conclusions, the size of the data presented a limitation for us. Several parts of the data were not computationally feasible for all 37k+ listings, so we took random samples that may not have been represenatative. This study does not utilize many variables to find what correlates with positive reviews, such as bed count or accomodations. In the future, one could use more variables to see what neighborhoods or conditions make for a better experience. One could also analyze each neighborhood or borough independently. Manhattan obviously has another level of experience than the Bronx. Thus, a good AirBNB in the Bronx might be subpar in Manhattan. Analyzing what makes the experience better by neighborhood could be more individualized, as it could be based on different goals and variables. Finally, the number of amenities is not a qualitative analysis. Some owners may list basic necessities as amenities, while some random amenities may add more to the review score. Diving into these would surely give a better analysis.
