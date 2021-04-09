@@ -59,7 +59,8 @@ ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fil
   labs(title = "Airbnb Density by Price",
        x = 'Price',
        y = 'Density') +
-  theme(plot.title = element_text(size= 15, face = 'bold'))
+  theme(plot.title = element_text(size= 15, face = 'bold')) +
+  theme_bw()
 
 ##ggplot(data = listings %>% filter(review_scores_rating > 50), mapping = aes(x=review_scores_rating, fill=neighbourhood_group_cleansed)) +
   ##geom_density() +
@@ -80,7 +81,8 @@ ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=
   labs(title = 'Review Scores by Price',
        x = 'Price',
        y = 'Review Score') +
-  theme(plot.title = element_text(size=15, face = 'bold')) 
+  theme(plot.title = element_text(size=15, face = 'bold')) +
+  theme_bw()
 
 
 ```
