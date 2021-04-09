@@ -1,19 +1,12 @@
 ---
 title: "AirBNB Data Analysis"
-author: "Tim Harrold, Madison brown, Yifei Hao"
+author: "Tim Harrold, Madison Brown, Yifei Hao"
 date: "3/10/2021"
 output: html_document
 ---
 
-Relationships/graphs: 
+In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City and what makes the best Airbnb experience. We ask the question, which characteristics (variables) are correlated with a better reported experience. This analysis will include graphs to show the relationships between price and neighborhood, rating and neighborhood, rating and number of reviews, and rating and review stop words. We will be using tables, density plots, scatter plots, box plots, and maps to analyze the correlations between these variables. To give a qualitative analysis of peoples stays, we will be using word cloud to filter keywords from the reviews. A map of the city will provide spacial information on where the most vs least expensive Airbnbs are located in the city. We hypothesize that the Bronx and Brooklyn will have the higher densities of lower priced Airbnbs than Staten Island and Manhattan, and that there will be a positive correlation between price and review score. We hypothesize that the map will show the highest concentration of higher priced Airbnbs in Manhattan. In the cloud word, we hypothesize that PULL FROM TIMS DESCRIPTION. 
 
-- Price vs. Rating
-
-- stop words
-
-- Map of NYC
-
-- Box plot
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -74,29 +67,47 @@ reviews <- read.csv('reviews_NYC.csv');
 
 ```
 
-## Make some graphs! 
+## Density by Price
 
+This graph show the density of Airbnbs at different prices within the five boroughs.  We hypothesized that the Bronx and Brooklyn would have the higher densities of lower priced Airbnbs than Staten Island and Manhattan. Our hypothesis is only partially correct. Brooklyn has a similar distribution to Staten Island, and queens has a similar distibution to the Bronx. Our hypothesis was supported in the case of the Bronx and Manhattan. This data show that the Bronx contain a higher distribution of lower priced Airbnbs than the other boroughs. Manhattan has the lowest density of lower priced Airbnbs. This is likely due to the difference in housing prices between Manhattan and the Bronx. 
 
 ```{r listings, echo=FALSE}
 
-tibble(listings)
 listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
   geom_density() +
-  facet_wrap(~ neighbourhood_group_cleansed)
+  facet_wrap(~ neighbourhood_group_cleansed) +
+  guides(fill = FALSE) +
+  labs(title = "Airbnb Density by Price",
+       x = 'Price',
+       y = 'Density') +
+  theme(plot.title = element_text(size= 15, face = 'bold'))
 
-ggplot(data = listings %>% filter(review_scores_rating > 50), mapping = aes(x=review_scores_rating, fill=neighbourhood_group_cleansed)) +
-  geom_density() +
-  facet_wrap(~ neighbourhood_group_cleansed)
+##ggplot(data = listings %>% filter(review_scores_rating > 50), mapping = aes(x=review_scores_rating, fill=neighbourhood_group_cleansed)) +
+  ##geom_density() +
+  ##facet_wrap(~ neighbourhood_group_cleansed)
+
+```
+## Review Scores by Price
+
+This graph shows the review score by price of Airbnbs in each borough. We hypothesized that there would be a positive correlation between price and review score. The data show that higher priced Airbnbs tend to have high review scores. Most of the multithousand dollar Airbnbs do not have review scores below 80. Although more expensive Airbnbs trend towards higher scores, this does not mean that cheaper Airbnbs trend towards lower scores. The Airbnbs with the lower scores tend to be the cheaper ones; however, less expensive Airbnbs also have high scores. he data show that price has less impact on cheaper Airbnb reviews than expensive ones. 
+
+```{r scatter, warning = FALSE}
 
 ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
   geom_point() +
-  facet_wrap(~ neighbourhood_group_cleansed)
-
+  facet_wrap(~ neighbourhood_group_cleansed) +
+  guides(fill = FALSE) +
+  labs(title = 'Review Scores by Price',
+       x = 'Price',
+       y = 'Review Score') +
+  theme(plot.title = element_text(size=15, face = 'bold')) 
 
 ```
 ## Stop Words 
+
+
 
 ``` {r stopWords}
 
@@ -192,33 +203,49 @@ w3 <- ggplot(data=worst, mapping=aes(label=word,size=n)) +
 grid.arrange(w1, w2, w3)
 
 ```
-
-
 ## Box Plot of Price
+
+(Working on this description- Madison)
+
 ```{r boxplot}
 boxplot <- as.data.frame(sample_n(listings, 1500))
 
 ggplot(data = boxplot %>% filter(priceNum < 2000), 
        mapping = aes(x = neighbourhood_group_cleansed, y = priceNum, fill = neighbourhood_group_cleansed)) +
-  geom_boxplot()
+  geom_boxplot() +
+  theme(plot.title = element_text(size= 15, face = 'bold')) +
+  labs(title = 'Price by Neighborhood',
+       x = 'Neighborhood',
+       y = 'Price') +
+  guides(fill = FALSE) +
+  theme_bw()
   
 
 ```
 
 ## Scatter plot of Ratings by Price
 
-```{r scatter}
+(Working on this Description- Madison)
+
+```{r scatter, warning = FALSE}
 
 set.seed(129)
 scatter <- as.data.frame(sample_n(listings, 1000))
 
 ggplot(data = scatter %>% filter(number_of_reviews < 500), mapping = aes(x = review_scores_rating, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
   geom_point() +
-  theme_bw() 
+  theme_bw() +
+  labs(title = 'Ratings by Price',
+       x = 'Review Score',
+       y = 'Number of Reviews') +
+   theme(plot.title = element_text(size= 15, face = 'bold'))
 
+
+ 
 ```
 
 ## Map of NYC (WHAT IS OUR VARIABLE?)
+
 Show price and/or reviews in each neighborhood
 ```{r maps, force = TRUE, message=FALSE, warning=FALSE}
 
