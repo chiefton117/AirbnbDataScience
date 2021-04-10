@@ -226,6 +226,7 @@ ggplot(data = boxplot %>% filter(priceNum < 2000),
   geom_boxplot() +
   theme(plot.title = element_text(size= 15, face = 'bold')) +
   labs(title = 'Price by Neighborhood',
+       subtitle = 'Price < 2000',
        x = 'Neighborhood',
        y = 'Price') +
   guides(fill = FALSE) +
@@ -257,7 +258,7 @@ cor.test(scatter$number_of_reviews, scatter$review_scores_rating)
 
 ## Amenities by Price and Score
 
-(Working on this description- Madison)
+One characteristic outside of the price and review score we want to consider is the amenities offered by each Airbnb. As with the other graphs, it seems there isn't much of a correlation between the number of amenities and price or quality. The range of 15-40 amenities generally hold the bulk of the data, meaning that good Airbnb's generally have these many amenities. Some higher listings have upwards of 60 amenities, but it doesn't seem to make them much better than any of the other listings. A reason for this could be that the property owners have different ideas of what amenities mean, so the upper quantiles may have amenities like 'hot tubs' or 'lofts' while lower ones may have 'bathrooms' or 'bedrooms'. In further reports, diving deeper into the amenities themselves could provide a clearer picture of what makes an Airbnb better. The same case can be made with price - there is a diminishing return, but most listings fall within the 15-40 range for amenities.
 
 ```{r amenities, warning=FALSE}
 
