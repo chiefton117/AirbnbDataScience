@@ -8,6 +8,8 @@ output:
       df_print:  paged 
 ---
 
+*NOTE: There will be a PDF and HTML document submitted for this project. The PDF contains everything significant in the report, but the HTML file will allow you to use the interactive leaflet.*
+
 Our data was sourced from Airbnb's website: http://insideairbnb.com/get-the-data.html    
 
 In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City, and what makes the best Airbnb experience. We ask the question, which characteristics are correlated with a better reported experience?    
@@ -96,7 +98,7 @@ a1 + theme(plot.title = element_text(size=15, face = 'bold'), legend.position = 
 ```
 
 
-# Stop Words 
+## Stop Words 
 
 For this part of the analysis, we will take 20 listings from the top and bottom of the data, then sample another 20 randomly. We will then filter these through a list of stop words(deemed irrelevant to the data) to find relevant and unique words to describe these experiences.
 
@@ -221,16 +223,18 @@ The learning of this graph is that there are many outliers that may add a bias o
 
 ```{r boxplot}
 boxplot <- as.data.frame(sample_n(listings, 1500))
-ggplot(data = boxplot %>% filter(priceNum < 2000), 
+
+a1 <- ggplot(data = boxplot %>% filter(priceNum < 2000), 
        mapping = aes(x = neighbourhood_group_cleansed, y = priceNum, fill = neighbourhood_group_cleansed)) +
   geom_boxplot() +
-  theme(plot.title = element_text(size= 15, face = 'bold')) +
   labs(title = 'Price by Neighborhood',
        subtitle = 'Price < 2000',
        x = 'Neighborhood',
        y = 'Price') +
   guides(fill = FALSE) +
   theme_bw()
+
+a1 + theme(plot.title = element_text(size= 15, face = 'bold'))
   
 ```
 
@@ -348,11 +352,11 @@ leaflet(sData) %>%
 
 ## Conclusions
 
-New York City has a lot to do, and a lot of unique experiences per neighborhood and borough. We believe that some while some neighborhoods may not be as highly rated as others, the price you pay for an AirBNB is generally a good way to ensure a decent experience. Our qualitative analysis shows some diminishing return - meaning there is a point where spending more money will not make a better experience. An illustrative fact is that all five boroughs have a high average review score, yet the price increases significantly closer to Manhattan and Brooklyn. Of course, correlation and causation are not the same. Paying more for an AirBNB is NOT the reason it is good. Amenities usually have something to do with quality, meaning a good AirBNB usually has a decent amount of them.    
+New York City has a lot to do, and a lot of unique experiences per neighborhood and borough. We believe that some while some neighborhoods may not be as highly rated as others, the price you pay for an Airbnb is generally a good way to ensure a decent experience. Our qualitative analysis shows some diminishing return - meaning there is a point where spending more money will not make a better experience. An illustrative fact is that all five boroughs have a high average review score, yet the price increases significantly closer to Manhattan and Brooklyn. Of course, correlation and causation are not the same. Paying more for an Airbnb is NOT the reason it is good. Amenities usually have something to do with quality, meaning a good Airbnb usually has a decent amount of them.    
 
-Because people generally use AirBNBs as a base for their vacation, we believe the biggest determinant in a good experience is the location. Most people simply want an owner that makes it easy to get in, drop their luggage and see the city. Worse AirBNB experiences usually come from necessities not being met - such as a dirty apartment or illegal happenings in or around the AirBNB.    
+Because people generally use Airbnbs as a base for their vacation, we believe the biggest determinant in a good experience is the location. Most people simply want an owner that makes it easy to get in, drop their luggage and see the city. Worse AirBNB experiences usually come from necessities not being met - such as a dirty apartment or illegal happenings in or around the Airbnb.    
 
-If these basic needs are met at a baseline, we believe that a positive review and score will be given. A good AirBNB experience is a simple, accomodating apartment in a decent location - one that is not dirty or haunted.
+If these basic needs are met at a baseline, we believe that a positive review and score will be given. A good Airbnb experience is a simple, accomodating apartment in a decent location - one that is not dirty or haunted.
 
 ## Limitations
 
