@@ -10,7 +10,7 @@ output:
 
 Our data was sourced from Airbnb's website: http://insideairbnb.com/get-the-data.html    
 
-In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City, and what makes the best Airbnb experience. We ask the question, which characteristics are correlated with a better reported experience.    
+In this analysis we will be observing qualitative and quantitative characteristics to discover the variation in Airbnbs throughout New York City, and what makes the best Airbnb experience. We ask the question, which characteristics are correlated with a better reported experience?    
 
 This analysis will include graphs to show the relationships between price and neighborhood, rating and neighborhood, rating and number of reviews, and rating and review stop words. We will be using tables, density plots, scatter plots, and maps to analyze the correlations between these variables. To give a qualitative analysis of peoples stays, we will be using word cloud to filter keywords from the reviews. A map of the city will provide spacial information on where the most vs least expensive Airbnbs are located in the city.
 
@@ -48,6 +48,7 @@ listings <- read.csv('listings_NYC.csv');
 reviews <- read.csv('reviews_NYC.csv');
 
 # In the setup chunk, create a numeric casting of price for analysis in the rest of the code
+
 listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 
@@ -55,7 +56,7 @@ listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 ## Density by Price
 
-This graph show the density of Airbnbs at different prices within the five boroughs.  We hypothesized that the Bronx and Brooklyn would have the higher densities of lower priced Airbnbs than Staten Island and Manhattan. Our hypothesis is only partially correct. Brooklyn has a similar distribution to Staten Island, and queens has a similar distibution to the Bronx. Our hypothesis was supported in the case of the Bronx and Manhattan. This data show that the Bronx contain a higher distribution of lower priced Airbnbs than the other boroughs. Manhattan has the lowest density of lower priced Airbnbs. This is likely due to the difference in housing prices between Manhattan and the Bronx. 
+This graph show the density of Airbnbs at different prices within the five boroughs.  We hypothesized that the Bronx and Brooklyn would have the higher densities of lower priced Airbnbs than Staten Island and Manhattan. Our hypothesis is only partially correct. Brooklyn has a similar distribution to Staten Island, and queens has a similar distibution to the Bronx. Our hypothesis was supported in the case of the Bronx and Manhattan. This data show that the Bronx contain a higher distribution of lower priced Airbnbs than the other boroughs. Manhattan has the lowest density of lower priced Airbnbs. This is likely due to the difference in housing prices between Manhattan and the Bronx. Manhattan contains most of the tourist sites like Central Park, the Empire State Building, the Freedom Tower, and Times Square. Visitors my prefer to be closer to the sites they will visit, making hotels and Airbnbs in the area more desirable and more expensive.
 
 ```{r listings, echo=FALSE}
 
@@ -75,7 +76,7 @@ ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fil
 
 ## Review Scores by Price
 
-This graph shows the review score by price of Airbnbs in each borough. We hypothesized that there would be a positive correlation between price and review score. The data show that higher priced Airbnbs tend to have high review scores. Most of the multithousand dollar Airbnbs do not have review scores below 80. Although more expensive Airbnbs trend towards higher scores, this does not mean that cheaper Airbnbs trend towards lower scores. The Airbnbs with the lower scores tend to be the cheaper ones; However, less expensive Airbnbs also have high scores. From this, we conclude that price has less impact on cheaper Airbnb reviews than expensive ones. 
+This graph shows the review score by price of Airbnbs in each borough. We hypothesized that there would be a positive correlation between price and review score. The data show that higher priced Airbnbs tend to have high review scores. Most of the multithousand dollar Airbnbs do not have review scores below 80. Although more expensive Airbnbs trend towards higher scores, this does not mean that cheaper Airbnbs trend towards lower scores. The Airbnbs with the lower scores tend to be the cheaper ones; However, less expensive Airbnbs also have high scores. From this, we conclude that price has less impact on cheaper Airbnb review scores than expensive ones. 
 
 ```{r scatter, warning = FALSE}
 
@@ -87,8 +88,9 @@ a1 <- ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, 
        y = 'Review Score') +
   theme_bw()
 
-# using guides() did not work to remove our legend, so we unfortunately had to go with theme()
+# using guides(fill = FALSE) did not work to remove our legend, so we unfortunately had to go with theme()
 # we understand this is not the best way to do it, but it seemed to work the best
+
 a1 + theme(plot.title = element_text(size=15, face = 'bold'), legend.position = "none")
 
 ```
