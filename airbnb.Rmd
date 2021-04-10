@@ -235,13 +235,15 @@ ggplot(data = boxplot %>% filter(priceNum < 2000),
 
 (Working on this Description- Madison)
 
-```{r scatter, warning = FALSE}
+```{r scattertwo, warning = FALSE, message=FALSE}
 set.seed(129)
 scatter <- as.data.frame(sample_n(listings, 1000))
-ggplot(data = scatter %>% filter(number_of_reviews < 500), mapping = aes(x = review_scores_rating, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
+ggplot(data = scatter %>% filter(number_of_reviews < 500, review_scores_rating > 80), mapping = aes(x = review_scores_rating, y = number_of_reviews, color = neighbourhood_group_cleansed)) +
   geom_point() +
+  geom_smooth(method='lm', se=FALSE) +
   theme_bw() +
   labs(title = 'Ratings by Price',
+       subtitle = 'number of reviews < 500 and scores > 80',
        x = 'Review Score',
        y = 'Number of Reviews') +
    theme(plot.title = element_text(size= 15, face = 'bold'))
