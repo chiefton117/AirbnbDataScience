@@ -215,7 +215,7 @@ w3
 
 ## Box Plot of Price
 
-(Working on this description- Madison)
+The learning of this graph is that there are many outliers that may add a bias or skew to analyzing this data. In Brooklyn and Manhattan especially, the data has a lot of points that are far above average. This could mean that analysis of this data may not reflect the average experience, but rather a small subset of very pricey listings. As we found in other graphs, the price does not make a stay better after a certain point. If the AirBNB's keep increasing in quality past this diminishing point, the data on the priciest listings may not be able to answer the question of what exactly makes a good AirBNB. Instead, we may find what makes the top 1% of AirBNBs
 
 ```{r boxplot}
 boxplot <- as.data.frame(sample_n(listings, 1500))
