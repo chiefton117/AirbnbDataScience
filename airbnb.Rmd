@@ -140,7 +140,7 @@ This graph shows the review score by price of Airbnbs in each borough. We hypoth
 
 a1 <- ggplot(data = listings, mapping = aes(x=priceNum, y=review_scores_rating, color=neighbourhood_group_cleansed)) +
   geom_point() +
-   scale_x_log10() +
+  scale_x_log10() +
   facet_wrap(~ neighbourhood_group_cleansed) +
   labs(title = 'Review Scores by Price',
        subtitle = 'With Applied log10 Transformation',
@@ -297,8 +297,6 @@ a1 + theme(plot.title = element_text(size= 15, face = 'bold'))
 ```
 
 
- 
-```
 
 ## Amenities by Price and Score
 
@@ -331,6 +329,8 @@ a1 <- ggplot(data = amens,
 a2 <- ggplot(data = amens %>% filter(priceNum < 2000),
        mapping = aes(x = amenCount, y=priceNum)) +
   geom_point() +
+  geom_smooth(method = "lm") +
+  scale_x_log10() +
   theme(plot.title = element_text(size= 15, face = 'bold')) +
   labs(title = 'Price by Number of Amenities',
        subtitle= 'Prices > 2000 removed for easier interpretation',
@@ -340,9 +340,9 @@ a2 <- ggplot(data = amens %>% filter(priceNum < 2000),
   theme_bw()
 
 grid.arrange(a1, a2)
-  
 
 ```
+
 
 
 ## Conclusions
