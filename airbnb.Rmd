@@ -9,6 +9,15 @@ output:
       df_print:  paged 
 ---
 
+
+*TODO*
+
+- Regression line to amenities
+- Get specific amenities
+- Machine Learning
+- Filtering for amenities
+
+
 *NOTE: There will be a PDF and HTML document submitted for this project. The PDF contains everything significant in the report, but the HTML file will allow you to use the interactive leaflet.*
 
 Our data was sourced from Airbnb's website: http://insideairbnb.com/get-the-data.html    
@@ -284,6 +293,7 @@ One characteristic outside of the price and review score we want to consider is 
 
 amens <- as.data.frame(sample_n(listings, 1500))
 
+
 # This function takes in a list (with csv), and returns the length - the list may not be casted as such
 # In the case of AirBNB, this is more efficient than modifying their amenities list to cast it as a list
 listlen <- function(x) {
@@ -319,6 +329,21 @@ grid.arrange(a1, a2)
   
 
 ```
+
+```{r amenSpecific}
+
+  # filter data with regex
+filter_punct <- function(data) {
+  data <- gsub("[^a-zA-Z, ]","",data, perl=TRUE, fixed = FALSE)
+}
+
+amens <- as.data.frame(sample_n(listings, 10))
+filter_punct(amens$amenities[1])[1]
+
+#as.vector(amens$amenities[1])
+
+```
+
 
 
 ## Conclusions
