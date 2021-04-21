@@ -60,7 +60,7 @@ listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 This graph show the density of Airbnbs at different prices within the five boroughs.  We hypothesized that the Bronx and Brooklyn would have the higher densities of lower priced Airbnbs than Staten Island and Manhattan. Our hypothesis is only partially correct. Brooklyn has a similar distribution to Staten Island, and queens has a similar distibution to the Bronx. Our hypothesis was supported in the case of the Bronx and Manhattan. This data show that the Bronx contain a higher distribution of lower priced Airbnbs than the other boroughs. Manhattan has the lowest density of lower priced Airbnbs. This is likely due to the difference in housing prices between Manhattan and the Bronx. Manhattan contains most of the tourist sites like Central Park, the Empire State Building, the Freedom Tower, and Times Square. Visitors my prefer to be closer to the sites they will visit, making hotels and Airbnbs in the area more desirable and more expensive.
 
-```{r listings, echo=FALSE}
+```{r listings}
 
 ggplot(data = listings %>% filter(priceNum < 400), mapping = aes(x=priceNum, fill=neighbourhood_group_cleansed)) +
   geom_density() +
@@ -238,25 +238,7 @@ a1 + theme(plot.title = element_text(size= 15, face = 'bold'))
   
 ```
 
-## Scatter plot of Review Score by Number of Reviews
 
-This graph shows that there is a negative correlation between the number of reviews and the review score. The correlation is weak, only -0.0356, however there is still a slight correlation indicating that as review score goes up, the number of reviews decreases. This data show that Airbnbs with a lower score may have a higher number of reviews than Airbnbs with higher scores. People are more likely to complain than they are to praise. If an individual had a bad experience they may be more likely to fill out a bad review. If someone had a good experience, they may be less likely to leave a review due to their positive experience because there was nothing to complain about. 
-
-```{r scattertwo, warning = FALSE, message=FALSE}
-
-set.seed(129)
-scatter <- as.data.frame(sample_n(listings, 1000))
-ggplot(data = scatter %>% filter(number_of_reviews < 500, review_scores_rating > 80), mapping = aes(x = review_scores_rating, y = number_of_reviews)) +
-  geom_point() +
-  geom_smooth(method='lm', se=FALSE) +
-  theme_bw() +
-  labs(title = 'Review Scores by Number of Reviews',
-       subtitle = 'number of reviews < 500 and scores > 80',
-       x = 'Review Score',
-       y = 'Number of Reviews') +
-   theme(plot.title = element_text(size= 15, face = 'bold'))
-
-cor.test(scatter$number_of_reviews, scatter$review_scores_rating)
  
 ```
 
