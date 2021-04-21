@@ -5,6 +5,7 @@ date: "3/10/2021"
 output: 
   html_document:
       toc: true
+      code_folding: hide
       df_print:  paged 
 ---
 
@@ -56,9 +57,59 @@ listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 ```
 
+## Mapped Listings by Price
+
+*Here, we tried to utilize ggmaps and ggplot before resorting to leaflet for our map. I tried mapping the review scores, which didn't quite display right. Most scores are very high, even when mapping 68% of the data within one standard deviation of the mean.*
+
+*The other challenge was taking a small enough subset of the data to map without crashing a computer(three computer crashes were involved in the making of this report). Leaflet offers multiple coloring methods, such as numerical, bin-based, and quantile-based. Quantiles ended up working especially well for this map.*
+
+We hypothesized that the Bronx and Brooklyn would have a higher concentration of lower priced Airbnbs than Staten Island and Manhattan. Our hypothesis is only partially correct. Brooklyn has a similar distribution to Staten Island, and Queens has a similar distribution to the Bronx. Our hypothesis was supported in the case of the Bronx and Manhattan. 
+
+This map also has some interesting findings in the density of properties, and their price. The listings get much more dense the further into Manhattan you go, second to Queens and Brooklyn. Interestingly, price also increases as you get into these areas. As per our earlier findings, Manhattan and Brooklyn are the most expensive boroughs to stay in.
+
+Within Manhattan, values get more dense and more expensive towards the south end. This is the financial district of NYC, where most skyscrapers and businesses are. Perhaps people with financial interests, or wealthier individuals like Wall Street bankers stay in pricier AirBNB's. SoHo and Greenwich Village are also in this part of Manhattan, which must be more expensive.
+
+When people visit NYC, they want to be closer to the center of the city. They likely pay more for staying in or near Manhattan - where most tourist attractions are.     
+
+```{r maps, force = TRUE, message=FALSE, warning=FALSE}
+
+set.seed(200)
+subset <- sample_n(listings, 3000)
+
+stdev <- sd(subset$priceNum)
+mean <- mean(subset$priceNum)
+
+
+# This is within one standard deviation of the mean
+sData <- subset %>% filter(priceNum > (mean - stdev) & priceNum < (mean + stdev))
+# This is within two standard deviations of the mean
+sd2Data <- subset %>% filter(priceNum > mean - (2*stdev) & priceNum < mean + (2*stdev))
+
+clrs <- colorQuantile(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, na.color = NA)
+
+# plot price on map, not sure what the actual markers signify?
+leaflet(sData) %>%
+  addTiles() %>%
+  addCircleMarkers(data = sData,
+           lng = ~longitude,
+           lat = ~latitude,
+           color = ~clrs(priceNum),
+           stroke = FALSE, fillOpacity = 0.4, radius = 4) %>%
+  addLegend("bottomright", pal = clrs, values = ~priceNum,
+    title = "Price(Quantile)",
+    labFormat = labelFormat(prefix = ""),
+    opacity = 1) %>%
+  addMarkers( clusterOptions = markerClusterOptions() ) %>%
+  setView(-74.00, 40.71, zoom = 12) %>%
+  addProviderTiles("CartoDB.Positron")
+
+```
+
+
 ## Density by Price
 
 This graph show the density of Airbnbs with different review scores within the five boroughs.  We hypothesized that the Bronx and Brooklyn would have the higher densities of lower reviewed Airbnbs than Staten Island and Manhattan. Our hypothesis is only partially correct. Brooklyn has a similar distribution to Manhattan. There are more Airbnbs in these boroughs with very high ratings than there are in the other boroughs. Our hypothesis was supported in the case of the Bronx, queens, and Staten Island. The distribution of ratings is similar among these boroughs. Manhattan and Brooklyn are more expensive and desirable boroughs for living and tourism. This not only increases the price, but may also affect quality. The quality of Airbnbs among the boroughs is likely reflected in the review scores. 
+
 
 *We attempted to arrange the facet_wrap into one column to make reading the graphs and comparing the boroughs easier. This stretched out each graph and did not help with readability. It is easiest to read facet_wrap with three columns. 
 
@@ -269,6 +320,7 @@ amens$amenCount <- as.numeric(lapply(amens$amenities, listlen))
 a1 <- ggplot(data = amens,
        mapping = aes(x = amenCount, y=review_scores_rating)) +
   geom_point() +
+  geom_smooth(method="lm") +
   theme(plot.title = element_text(size= 15, face = 'bold')) +
   labs(title = 'Review Score by Number of Amenities',
        x = 'Number of Amenities',
@@ -292,52 +344,6 @@ grid.arrange(a1, a2)
 
 ```
 
-
-## Mapped Listings by Price
-
-Here, we tried to utilize ggmaps and ggplot before resorting to leaflet for our map. I tried mapping the review scores, which didn't quite display right(most scores are actually pretty high!) even when mapping 68% of the data within one standard deviation of the mean.
-
-The other challenge was taking a small enough subset of the data to map without crashing a computer(three computer crashes were involved in the making of this report). Leaflet offers multiple coloring methods, such as numerical, bin-based, and quantile-based. Quantiles ended up working especially well for this map.
-
-This map has some interesting findings in the density of properties, and their price. The listings get much more dense the further into Manhattan you go, second to Queens and Brooklyn. Interestingly, price also increases as you get into these areas. As per our earlier findings, Manhattan and Brooklyn are the most expensive boroughs to stay in.
-
-Within Manhattan, values get more dense and more expensive towards the south end. This is the financial district of NYC, where most skyscrapers and businesses are. Perhaps people with financial interests, or wealthier individuals like Wall Street bankers stay in pricier AirBNB's. SoHo and Greenwich Village are also in this part of Manhattan, which must be more expensive.
-
-When people visit NYC, they want to be closer to the center of the city. They likely pay more for staying in or near Manhattan - where most tourist attractions are.
-
-```{r maps, force = TRUE, message=FALSE, warning=FALSE}
-
-set.seed(200)
-subset <- sample_n(listings, 3000)
-
-stdev <- sd(subset$priceNum)
-mean <- mean(subset$priceNum)
-
-
-# This is within one standard deviation of the mean
-sData <- subset %>% filter(priceNum > (mean - stdev) & priceNum < (mean + stdev))
-# This is within two standard deviations of the mean
-sd2Data <- subset %>% filter(priceNum > mean - (2*stdev) & priceNum < mean + (2*stdev))
-
-clrs <- colorQuantile(palette = "RdYlBu", domain = sData$priceNum, reverse = TRUE, na.color = NA)
-
-# plot price on map, not sure what the actual markers signify?
-leaflet(sData) %>%
-  addTiles() %>%
-  addCircleMarkers(data = sData,
-           lng = ~longitude,
-           lat = ~latitude,
-           color = ~clrs(priceNum),
-           stroke = FALSE, fillOpacity = 0.4, radius = 4) %>%
-  addLegend("bottomright", pal = clrs, values = ~priceNum,
-    title = "Price(Quantile)",
-    labFormat = labelFormat(prefix = ""),
-    opacity = 1) %>%
-  addMarkers( clusterOptions = markerClusterOptions() ) %>%
-  setView(-74.00, 40.71, zoom = 12) %>%
-  addProviderTiles("CartoDB.Positron")
-
-```
 
 ## Conclusions
 
