@@ -18,6 +18,11 @@ output:
 - Filtering for amenities
 
 
+Multiple Regression Vars
+"review_scores_rating", "review_scores_accuracy", "review_scores_cleanliness", "review_scores_checkin", "review_scores_communication", "review_scores_location", "review_scores_value"
+
+
+
 *NOTE: There will be a PDF and HTML document submitted for this project. The PDF contains everything significant in the report, but the HTML file will allow you to use the interactive leaflet.*
 
 Our data was sourced from Airbnb's website: http://insideairbnb.com/get-the-data.html    
@@ -65,6 +70,15 @@ listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 
 ```
+
+
+``` {r ml}
+
+colnames(listings)
+head(listings, 10)
+
+```
+
 
 ## Mapped Listings by Price
 
