@@ -59,6 +59,7 @@ library(tidyr)
 library(ggwordcloud)
 library(grid)
 library(gridExtra)
+library(C50)
 
 
 listings <- read.csv('listings_NYC.csv');
@@ -68,14 +69,6 @@ reviews <- read.csv('reviews_NYC.csv');
 
 listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
-
-```
-
-
-``` {r ml}
-
-colnames(listings)
-head(listings, 10)
 
 ```
 
@@ -385,6 +378,66 @@ filter_punct(amens$amenities[1])[1]
 ```
 
 
+```{r dt_setup, message=FALSE, warning=FALSE}
+
+dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_total_listings_count", "host_verifications", "host_has_profile_pic", "host_identity_verified", "neighbourhood", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "latitude", "longitude", "property_type", "room_type", "accommodates", "bedrooms", "beds", "amenities", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
+
+RNGversion('3.5.2')
+set.seed(123)
+train_sample <- sample(1:5000, 4000)
+RNGversion(getRversion())
+
+# Create classification variable
+dt_frame_lbl <- ifelse(dt_frame$review_scores_rating >= 90, "Good", "Poor")
+
+# Take out review scores variable
+dt_frame <- dt_frame[-1]
+
+tibble(dt_frame)
+
+
+
+# Create training set and labels
+bnb_train <- dt_frame[train_sample,]
+bnb_train_lbl <- dt_frame_lbl[train_sample,]
+
+# Create test set and labels from any values not in training set
+bnb_test <- dt_frame[-train_sample,]
+bnb_test_lbl <- dt_frame_lbl[-train_sample,]
+
+```
+
+ml analysis
+
+
+``` {r dt_run, message=FALSE, warning=FALSE}
+
+#summary(dt_frame$review_scores_rating)
+
+# ggplot(data = dt_frame, mapping = aes(x=review_scores_rating)) +
+#   geom_density() +
+#   guides(fill = FALSE)
+
+bnb_model <- C5.0(x = bnb_train, y = as.factor(bnb_train_lbl))
+
+bnb_pred <- predict(bnb_model, bnb_test)
+bnb_pred
+
+# credit_model <- C5.0(x = credit_train[-17],
+#                      y = as.factor(credit_train$default),
+#                      trials = 10)
+# 
+# credit_pred <- predict(credit_model, credit_test)
+# credit_pred
+# 
+# #  dnn = names given to dimensions of table, rows then cols
+# 
+# CrossTable(credit_test$default, credit_pred,
+#            prop.chisq = FALSE, prop.c =FALSE,
+#            prop.r = FALSE,
+#            dnn = c('actual data', 'predicted data'))
+
+```
 
 
 ## Conclusions
