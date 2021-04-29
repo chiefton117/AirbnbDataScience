@@ -372,10 +372,18 @@ filter_punct(amens$amenities[1])[1]
 
 ```{r dt_setup, message=FALSE, warning=FALSE}
 
-dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_total_listings_count", "host_verifications", "host_has_profile_pic", "host_identity_verified", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "latitude", "longitude", "property_type", "room_type", "accommodates", "bedrooms", "beds", "amenities", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
+dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_total_listings_count", "host_has_profile_pic", "host_identity_verified", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "property_type", "room_type", "accommodates", "bedrooms", "beds", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
+
+#"amenities", "host_verifications"
+#"latitude", "longitude"
+
 
 #dt_frame <- lapply(dt_frame[, sapply(dt_frame, is.character)], factorize)
-dt_frame[sapply(dt_frame, is.character)] <- lapply(dt_frame[sapply(dt_frame, is.character)], as.factor)
+
+idx <- 1:ncol(dt_frame)
+dt_frame[ , idx] <- lapply(dt_frame[ , idx], as.factor)
+#dt_frame[sapply(dt_frame, is.character)] <- lapply(dt_frame[sapply(dt_frame, is.character)], as.factor)
+
 #dt_frame <- as.data.frame(unclass(dt_frame))
 
 RNGversion('3.5.2')
@@ -419,21 +427,12 @@ rmNullLevels <- function(df) {
   df
 }
 
-head(bnb_train, 10)
-
 bnb_train <- rmNullLevels(bnb_train)
 
+bnb_train
 
-str(bnb_train)
-
-
-#summary(dt_frame$review_scores_rating)
-
-# ggplot(data = dt_frame, mapping = aes(x=review_scores_rating)) +
-#   geom_density() +
-#   guides(fill = FALSE)
-
-#bnb_model <- C5.0(x = bnb_train, bnb_train_lbl)
+bnb_model <- C5.0(x = bnb_train, bnb_train_lbl)
+summary(bnb_model)
 
 #bnb_train
 
