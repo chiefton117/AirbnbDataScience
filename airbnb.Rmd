@@ -10,14 +10,6 @@ output:
 ---
 
 
-*TODO*
-
-- Regression line to amenities
-- Get specific amenities
-- Machine Learning
-- Filtering for amenities
-
-
 Multiple Regression Vars
 "review_scores_rating", "review_scores_accuracy", "review_scores_cleanliness", "review_scores_checkin", "review_scores_communication", "review_scores_location", "review_scores_value"
 
@@ -380,7 +372,11 @@ filter_punct(amens$amenities[1])[1]
 
 ```{r dt_setup, message=FALSE, warning=FALSE}
 
-dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_total_listings_count", "host_verifications", "host_has_profile_pic", "host_identity_verified", "neighbourhood", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "latitude", "longitude", "property_type", "room_type", "accommodates", "bedrooms", "beds", "amenities", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
+dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_total_listings_count", "host_verifications", "host_has_profile_pic", "host_identity_verified", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "latitude", "longitude", "property_type", "room_type", "accommodates", "bedrooms", "beds", "amenities", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
+
+#dt_frame <- lapply(dt_frame[, sapply(dt_frame, is.character)], factorize)
+dt_frame[sapply(dt_frame, is.character)] <- lapply(dt_frame[sapply(dt_frame, is.character)], as.factor)
+#dt_frame <- as.data.frame(unclass(dt_frame))
 
 RNGversion('3.5.2')
 set.seed(123)
@@ -388,18 +384,16 @@ train_sample <- sample(1:5000, 4000)
 RNGversion(getRversion())
 
 # Create classification variable
-dt_frame_lbl <- ifelse(dt_frame$review_scores_rating >= 90, "Good", "Poor")
+dt_frame <- cbind(Rating = as.factor(ifelse(dt_frame$review_scores_rating >= 90, "Good", "Poor")), dt_frame)
+#dt_frame_lbl <- as.data.frame(as.factor(ifelse(dt_frame$review_scores_rating >= 90, "Good", "Poor")))
+
 
 # Take out review scores variable
-dt_frame <- dt_frame[-1]
-
-tibble(dt_frame)
-
-
+dt_frame <- dt_frame[-2]
 
 # Create training set and labels
-bnb_train <- dt_frame[train_sample,]
-bnb_train_lbl <- dt_frame_lbl[train_sample,]
+bnb_train <- dt_frame[train_sample,-1]
+bnb_train_lbl <- dt_frame_lbl[train_sample,1]
 
 # Create test set and labels from any values not in training set
 bnb_test <- dt_frame[-train_sample,]
@@ -412,16 +406,41 @@ ml analysis
 
 ``` {r dt_run, message=FALSE, warning=FALSE}
 
+rmNullLevels <- function(df) {
+  for(i in 1:ncol(df)) {
+    if(is.factor(df[, i])) {
+      lvls <- levels(df[, i])
+      if(!is.null(lvls) && lvls[1] == "") {
+        levels(df[,i])[1] = "N/A"
+      }
+    }
+      
+  }
+  df
+}
+
+head(bnb_train, 10)
+
+bnb_train <- rmNullLevels(bnb_train)
+
+
+str(bnb_train)
+
+
 #summary(dt_frame$review_scores_rating)
 
 # ggplot(data = dt_frame, mapping = aes(x=review_scores_rating)) +
 #   geom_density() +
 #   guides(fill = FALSE)
 
-bnb_model <- C5.0(x = bnb_train, y = as.factor(bnb_train_lbl))
+#bnb_model <- C5.0(x = bnb_train, bnb_train_lbl)
 
-bnb_pred <- predict(bnb_model, bnb_test)
-bnb_pred
+#bnb_train
+
+#bnb_pred <- predict(bnb_model, bnb_test)
+
+#plot(bnb_model)
+
 
 # credit_model <- C5.0(x = credit_train[-17],
 #                      y = as.factor(credit_train$default),
