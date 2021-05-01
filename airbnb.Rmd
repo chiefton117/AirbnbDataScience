@@ -528,6 +528,99 @@ summary(bnb_model)
 ```
 
 
+## Machine Learning
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(psych)
+library(rpart)
+library(rpart.plot)
+library(lattice)
+library(Cubist)
+library(dplyr)
+
+listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
+```
+
+```{r multiple reg}
+scores <- listings %>% select("review_scores_rating", "review_scores_accuracy", "review_scores_cleanliness", "review_scores_checkin", "review_scores_communication", "review_scores_location", "review_scores_value", "priceNum")
+
+names(scores) <- c('Score', 'accuracy', 'cleanliness', 'checkin', 'communication', 'location', 'value', 'price')
+
+# boxplot(scores$Score)
+
+scores <- scores %>% drop_na() %>% filter(price <= 1000) # %>% filter(Score >= 80)
+
+summary(scores)
+# pairs.panels(scores)
+
+score_lm <- lm(Score ~ . , data = scores)
+score_lm
+summary(score_lm)
+
+
+pred1 <- predict(score_lm, scores)
+cor(pred1, scores$Score)
+plot(pred1, scores$Score)
+abline(a = 0, b = 1, col = "red", lwd = 3, lty = 2)
+
+MAE <- function(actual, predicted) {
+  mean(abs(actual - predicted))  
+}
+
+mae_model <- MAE(pred1, scores$Score)
+mae_model
+mae_mean <- MAE(93.78, scores$Score)
+mae_mean
+
+mae_mean - mae_model
+```
+
+```{r reg tree}
+RNGversion('3.5.3')
+set.seed(111)
+train_sample <- sample(1:26620, 16620)
+
+head(train_sample, 10)
+
+train <- scores[train_sample, ]
+test <- scores[-train_sample, ]
+
+reg_tree <- rpart(Score ~. , data = train)
+reg_tree
+
+rpart.plot(reg_tree, digits = 3,
+           fallen.leaves = TRUE,
+           type = 4, extra = 101,
+           box.palette = 'RdBu',
+           shadow.col = 'gray')
+
+pred2 <- predict(reg_tree, test)
+
+summary(pred2)
+summary(test$Score)
+
+cor(pred2, test$Score)
+
+MAE(pred2, test$Score)
+```
+
+```{r modeltree}
+model_tree <- cubist(x = train[-1],
+                     y = train$Score)
+model_tree
+
+summary(model_tree)
+
+pred_tree <- predict(model_tree, test)
+
+summary(pred_tree)
+summary(test$Score)
+
+cor(pred_tree, test$Score)
+
+MAE(test$Score, pred_tree)
+```
+
 ## Conclusions
 
 New York City has a lot to do, and a lot of unique experiences per neighborhood and borough. We believe that some while some neighborhoods may not be as highly rated as others, the price you pay for an Airbnb is generally a good way to ensure a decent experience. Our qualitative analysis shows some diminishing return - meaning there is a point where spending more money will not make a better experience. An illustrative fact is that all five boroughs have a high average review score, yet the price increases significantly closer to Manhattan and Brooklyn. Of course, correlation and causation are not the same. Paying more for an Airbnb is NOT the reason it is good. Amenities usually have something to do with quality, meaning a good Airbnb usually has a decent amount of them.    
