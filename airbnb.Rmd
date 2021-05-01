@@ -400,23 +400,31 @@ classify <- function(data) {
 dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_has_profile_pic", "host_identity_verified", "neighbourhood_group_cleansed", "property_type", "room_type", "accommodates", "bedrooms", "beds", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
 
 
-# dt_frame$quartile <- with(dt_frame$priceNum, factor(
-#                             findInterval( val, c(-Inf,
-#                                quantile(val, probs=c(0.25, .5, .75)), Inf) , na.rm=TRUE), 
-#                             labels=c("Q1","Q2","Q3","Q4")
-#       ))
-
-# Create classification variable
+# Create classification variable - This works, but only creates two classes
 #dt_frame <- cbind(Rating = as.factor(ifelse(dt_frame$review_scores_rating >= 90, "good", "poor")), dt_frame)
-#dt_frame <- cbind(Rating = as.factor(classify(dt_frame$review_scores_rating)), dt_frame)
-dt_frame <- cbind(Rating = as.factor(lapply(dt_frame$review_scores_rating, classify)), dt_frame)
 
+# Experimental third classification
+dt_frame <- cbind(Rating = as.factor(function() {
+  d = dt_frame$review_scores_rating
+    if(d >= 90) {
+      return(as.factor("good"))
+    } else if(d < 90 & d >= 80) {
+      return(as.factor("decent"))
+    } else {
+      return(as.factor("bad"))
+    }
+}), dt_frame)
+
+# Causing """ Error in order(y) : unimplemented type 'list' in 'orderVector1' """ error
+#dt_frame <- cbind(Rating = as.factor(lapply(dt_frame$review_scores_rating, classify)), dt_frame)
+
+# Another possible approach?
 #dt_frame$review_scores_rating <- lapply(dt_frame$review_scores_rating, classify)
 
 # Take out review scores variable
 dt_frame <- dt_frame[-2]
 
-
+# We'll convert some values to quartiles for easier readibility
 to_quartiles <- c("host_response_rate", "host_acceptance_rate", "host_listings_count", "minimum_nights", "maximum_nights", "availability_365", "number_of_reviews_ltm", "accommodates")
 
 dt_frame$host_response_rate <- as.numeric(sub("%","", dt_frame$host_response_rate))/100
@@ -458,9 +466,6 @@ train_sample <- sample(1:5000, 4000)
 RNGversion(getRversion())
 
 
-#dt_frame_lbl <- as.data.frame(as.factor(ifelse(dt_frame$review_scores_rating >= 90, "good", "poor")))
-
-
 # Create training set and labels
 bnb_train <- dt_frame[train_sample,-1]
 bnb_train_lbl <- dt_frame[train_sample,1]
@@ -468,9 +473,6 @@ bnb_train_lbl <- dt_frame[train_sample,1]
 # Create test set and labels from any values not in training set
 bnb_test <- dt_frame[-train_sample,-1]
 bnb_test_lbl <- dt_frame[-train_sample,1]
-
-tibble(dt_frame)
-#summary(dt_frame)
 
 
 ```
