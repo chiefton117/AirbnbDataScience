@@ -372,19 +372,49 @@ filter_punct(amens$amenities[1])[1]
 
 ```{r dt_setup, message=FALSE, warning=FALSE}
 
-dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_total_listings_count", "host_has_profile_pic", "host_identity_verified", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "property_type", "room_type", "accommodates", "bedrooms", "beds", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
+makeQuartile <- function(data) {
+  # with(dt_frame, cut(priceNum, 
+  #   breaks=quantile(priceNum, probs=seq(0,1, by=0.25), na.rm=TRUE), 
+  #   include.lowest=TRUE))
+    cut(data,
+    breaks=quantile(data, probs=seq(0,1, by=0.25), na.rm=TRUE),
+    include.lowest=TRUE)
+}
 
+#dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_total_listings_count", "host_has_profile_pic", "host_identity_verified", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "property_type", "room_type", "accommodates", "bedrooms", "beds", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
+
+dt_frame <- listings %>% select("review_scores_rating", "host_response_time", "host_response_rate", "host_acceptance_rate", "host_is_superhost", "host_listings_count", "host_total_listings_count", "host_has_profile_pic", "host_identity_verified", "neighbourhood_group_cleansed", "property_type", "room_type", "accommodates", "bedrooms", "beds", "minimum_nights", "maximum_nights", "has_availability", "availability_365", "number_of_reviews", "number_of_reviews_ltm", "priceNum") %>% filter(!is.na(review_scores_rating))
+
+
+# dt_frame$quartile <- with(dt_frame$priceNum, factor(
+#                             findInterval( val, c(-Inf,
+#                                quantile(val, probs=c(0.25, .5, .75)), Inf) , na.rm=TRUE), 
+#                             labels=c("Q1","Q2","Q3","Q4")
+#       ))
+
+dt_frame$quartile <- makeQuartile(dt_frame$priceNum)
+
+summary(dt_frame$priceNum)
+summary(dt_frame$quartile)
+
+#dt_frame <- listings %>% select("review_scores_rating", "review_scores_rating", "property_type", "room_type", "bedrooms", "number_of_reviews_ltm", "host_response_time") %>% filter(!is.na(review_scores_rating))
+
+
+#, "minimum_nights", "maximum_nights", "host_is_superhost", "host_listings_count", "host_total_listings_count", "neighbourhood_group_cleansed", "accommodates", "host_has_profile_pic", "host_identity_verified"
+
+#, "neighbourhood_cleansed" # YOU!!!!!
+
+# Removed for less data cleaning work
 #"amenities", "host_verifications"
 #"latitude", "longitude"
 
 
-#dt_frame <- lapply(dt_frame[, sapply(dt_frame, is.character)], factorize)
-
-idx <- 1:ncol(dt_frame)
+# Code to convert all cols to factors
+idx <- 2:ncol(dt_frame)
 dt_frame[ , idx] <- lapply(dt_frame[ , idx], as.factor)
-#dt_frame[sapply(dt_frame, is.character)] <- lapply(dt_frame[sapply(dt_frame, is.character)], as.factor)
 
-#dt_frame <- as.data.frame(unclass(dt_frame))
+# Convert all characters to factors
+#[sapply(dt_frame, is.character)] <- lapply(dt_frame[sapply(dt_frame, is.character)], as.factor)
 
 RNGversion('3.5.2')
 set.seed(123)
@@ -392,20 +422,20 @@ train_sample <- sample(1:5000, 4000)
 RNGversion(getRversion())
 
 # Create classification variable
-dt_frame <- cbind(Rating = as.factor(ifelse(dt_frame$review_scores_rating >= 90, "Good", "Poor")), dt_frame)
-#dt_frame_lbl <- as.data.frame(as.factor(ifelse(dt_frame$review_scores_rating >= 90, "Good", "Poor")))
-
+dt_frame <- cbind(Rating = as.factor(ifelse(dt_frame$review_scores_rating >= 90, "good", "poor")), dt_frame)
+#dt_frame_lbl <- as.data.frame(as.factor(ifelse(dt_frame$review_scores_rating >= 90, "good", "poor")))
 
 # Take out review scores variable
 dt_frame <- dt_frame[-2]
 
+
 # Create training set and labels
 bnb_train <- dt_frame[train_sample,-1]
-bnb_train_lbl <- dt_frame_lbl[train_sample,1]
+bnb_train_lbl <- dt_frame[train_sample,1]
 
 # Create test set and labels from any values not in training set
-bnb_test <- dt_frame[-train_sample,]
-bnb_test_lbl <- dt_frame_lbl[-train_sample,]
+bnb_test <- dt_frame[-train_sample,-1]
+bnb_test_lbl <- dt_frame[-train_sample,1]
 
 ```
 
@@ -428,13 +458,13 @@ rmNullLevels <- function(df) {
 }
 
 bnb_train <- rmNullLevels(bnb_train)
+tibble(bnb_train)
 
-bnb_train
+bnb_model <- C5.0(x = bnb_train, y= bnb_train_lbl)
 
-bnb_model <- C5.0(x = bnb_train, bnb_train_lbl)
+#bnb_model
+
 summary(bnb_model)
-
-#bnb_train
 
 #bnb_pred <- predict(bnb_model, bnb_test)
 
