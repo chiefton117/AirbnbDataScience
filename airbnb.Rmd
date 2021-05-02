@@ -65,7 +65,7 @@ listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 
 ## Mapped Listings by Price
 
-*Here, we tried to utilize ggmaps and ggplot before resorting to leaflet for our map. I tried mapping the review scores, which didn't quite display right. Most scores are very high, even when mapping 68% of the data within one standard deviation of the mean.*
+*Here, we tried to utilize ggmaps and ggplot before resorting to leaflet for our map. We tried mapping the review scores, which didn't quite display right. Most scores are very high, even when mapping 68% of the data within one standard deviation of the mean.*
 
 *The other challenge was taking a small enough subset of the data to map without crashing a computer(three computer crashes were involved in the making of this report). Leaflet offers multiple coloring methods, such as numerical, bin-based, and quantile-based. Quantiles ended up working especially well for this map.*
 
