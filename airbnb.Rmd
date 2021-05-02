@@ -46,7 +46,6 @@ library(tidyr)
 library(ggwordcloud)
 library(grid)
 library(gridExtra)
-library(C50)
 
 
 listings <- read.csv('listings_NYC.csv');
@@ -324,6 +323,7 @@ a1 <- ggplot(data = amens,
   scale_x_log10() +
   theme(plot.title = element_text(size= 15, face = 'bold')) +
   labs(title = 'Review Score by Number of Amenities',
+       subtitle = 'Log 10 Scale on X',
        x = 'Number of Amenities',
        y = 'Review Score') +
   guides(fill = FALSE) +
@@ -336,7 +336,7 @@ a2 <- ggplot(data = amens %>% filter(priceNum < 2000),
   scale_x_log10() +
   theme(plot.title = element_text(size= 15, face = 'bold')) +
   labs(title = 'Price by Number of Amenities',
-       subtitle= 'Prices > 2000 removed for easier interpretation',
+       subtitle= 'Prices > 2000 Removed for Easier Interpretation, Log 10 Scale on X',
        x = 'Number of Amenities',
        y = 'Price') +
   guides(fill = FALSE) +
@@ -355,7 +355,6 @@ library(rpart)
 library(rpart.plot)
 library(lattice)
 library(Cubist)
-library(dplyr)
 
 listings$priceNum <- as.numeric(gsub('[$,]', '', listings$price))
 ```
