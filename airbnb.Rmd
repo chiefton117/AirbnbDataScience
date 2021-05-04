@@ -362,7 +362,7 @@ library(Cubist)
 
 For Machine Learning, we decided to use 7 variables (accuracy, cleanliness, check-in, communication, location, value, and price) to try to explain the review score. The variables, other than price, are customers' separate ratings of Airbnb in these aspects. For example, 10 for location means the customer is satisfied with the location of that Airbnb. Also, the data we used included only Airbnb prices under $1,000. 
 
-```{r setup}
+```{r ml_setup}
 scores <- listings %>% select("review_scores_rating", "review_scores_accuracy", "review_scores_cleanliness", "review_scores_checkin", "review_scores_communication", "review_scores_location", "review_scores_value", "priceNum")
 
 names(scores) <- c('Score', 'accuracy', 'cleanliness', 'checkin', 'communication', 'location', 'value', 'price')
